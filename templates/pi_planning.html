@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>Overall PI Confidence</h2>
+
+    <div class="score-row">
+        <div>
+            <div class="score {{ confidence_status }}">{{ confidence }}</div>
+            <div>Confidence Score</div>
+        </div>
+
+        <div class="progress">
+            <div class="progress-fill {{ confidence_status }}"
+                 style="width: {{ confidence }}%"></div>
+        </div>
+    </div>
+
+    <div class="insight">
+        {% if confidence_status == "green" %}
+            Planning signals indicate high confidence for PI execution.
+        {% elif confidence_status == "amber" %}
+            Some risks exist; focus on load balancing and dependency resolution.
+        {% else %}
+            Low confidence. Re-planning recommended before Day-2 commitments.
+        {% endif %}
+    </div>
+</div>
+
+{% for sprint, load in sprints.items() %}
+<div class="card">
+    <h3>{{ sprint }}</h3>
+
+    <div class="progress">
+        <div class="progress-fill {% if load <= capacity %}green{% else %}red{% endif %}"
+             style="width: {{ (load / capacity * 100) | int }}%">
+        </div>
+    </div>
+
+    <p><strong>Load:</strong> {{ load }} / {{ capacity }}</p>
+
+    {% if load <= capacity %}
+        <span class="badge good">Balanced</span>
+    {% else %}
+        <span class="badge risk">Overloaded</span>
+    {% endif %}
+</div>
+{% endfor %}
+
+{% if risks %}
+<div class="card">
+    <h3>Dependency Risks</h3>
+    <ul>
+        {% for r in risks %}
+            <li><span class="badge risk">{{ r }}</span> has unresolved dependency</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+{% endblock %}

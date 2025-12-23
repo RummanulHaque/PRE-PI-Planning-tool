@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>PRE-PI Capacity Readiness</h2>
+    <p>Checks whether the team is realistically ready to plan.</p>
+
+    <form method="post">
+        <input type="number" name="leaves" value="0" min="0">
+        <button type="submit">Recalculate</button>
+    </form>
+</div>
+
+<div class="card">
+    <div class="score-row">
+        <div>
+            <div class="score {{ status }}">{{ score }}</div>
+            <div>Readiness Score</div>
+        </div>
+
+        <div class="progress">
+            <div class="progress-fill {{ status }}" style="width: {{ score }}%"></div>
+        </div>
+    </div>
+
+    <p><strong>Total Available Capacity:</strong> {{ capacity }}</p>
+</div>
+
+<div class="card">
+    <h3>What this means</h3>
+    <div class="insight">
+        {% if status == "green" %}
+            The team has sufficient capacity to enter PI Planning confidently.
+        {% elif status == "amber" %}
+            Capacity is tight; strict scope control will be required.
+        {% else %}
+            Capacity is insufficient. Address availability before planning commitments.
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
