@@ -10,9 +10,9 @@ EXCEL_PATH = os.path.join(DATA_DIR, "wsjf_features.xlsx")
 
 os.makedirs(DATA_DIR, exist_ok=True)
 
-# -----------------------------
-# SAFe FEATURE GENERATOR
-# -----------------------------
+# ==================================================
+# SAFe FEATURE GENERATOR (SYSTEM-OWNED)
+# ==================================================
 def generate_safe_features_df():
     return pd.DataFrame([
         {
@@ -47,23 +47,20 @@ def generate_safe_features_df():
         }
     ])
 
-# -----------------------------
-# ENSURE EXCEL EXISTS AND HAS DATA
-# -----------------------------
+# ==================================================
+# ENSURE EXCEL EXISTS & HAS FEATURES
+# ==================================================
 def ensure_excel_with_features():
     if not os.path.exists(EXCEL_PATH):
-        print("📄 Excel missing → generating features")
         df = generate_safe_features_df()
     else:
         df = pd.read_excel(EXCEL_PATH)
         if df.empty:
-            print("📄 Excel empty → regenerating features")
             df = generate_safe_features_df()
         else:
-            print(f"📄 Excel loaded with {len(df)} rows")
             return df
 
-    # Add WSJF columns
+    # Add WSJF-related columns
     for col in [
         "Business Value",
         "Time Criticality",
@@ -79,9 +76,9 @@ def ensure_excel_with_features():
     df.to_excel(EXCEL_PATH, index=False)
     return df
 
-# -----------------------------
+# ==================================================
 # WSJF PAGE
-# -----------------------------
+# ==================================================
 @app.route("/")
 @app.route("/wsjf")
 def wsjf():
@@ -102,19 +99,62 @@ def wsjf():
     try:
         df.to_excel(EXCEL_PATH, index=False)
     except PermissionError:
-        print("⚠️ Excel open – skipping write")
+        pass
 
     features = df.to_dict(orient="records")
-    print(f"➡️ Sending {len(features)} features to UI")
-
     return render_template("wsjf.html", features=features)
 
-# -----------------------------
-# EXPORT
-# -----------------------------
+# ==================================================
+# CAPACITY PAGE (RESTORED)
+# ==================================================
+@app.route("/capacity")
+def capacity():
+    TEAM_MEMBERS = [
+        {"name": "John", "leaves": 10},
+        {"name": "Tom", "leaves": 4},
+        {"name": "Sarah", "leaves": 2},
+        {"name": "Emma", "leaves": 6},
+    ]
+
+    member_details = []
+    total_cap = 0
+
+    for m in TEAM_MEMBERS:
+        cap = round((60 - m["leaves"]) * 0.7, 0)
+        total_cap += cap
+        member_details.append({
+            **m,
+            "cap": cap,
+            "sprint_avg": round(cap / 6, 1)
+        })
+
+    score = min(int((total_cap / 300) * 100), 100)
+    status = "green" if total_cap >= 300 else "amber" if total_cap >= 270 else "red"
+
+    return render_template(
+        "capacity.html",
+        members=member_details,
+        capacity=int(total_cap),
+        status=status,
+        score=score
+    )
+
+# ==================================================
+# PI PLANNING PAGE (RESTORED)
+# ==================================================
+@app.route("/pi")
+def pi_planning():
+    df = ensure_excel_with_features()
+    features = df[["Feature Name"]].to_dict(orient="records")
+    return render_template("pi_planning.html", features=features)
+
+# ==================================================
+# EXPORT EXCEL
+# ==================================================
 @app.route("/export/wsjf")
 def export_wsjf():
     return send_file(EXCEL_PATH, as_attachment=True)
 
+# ==================================================
 if __name__ == "__main__":
     app.run(debug=True)
