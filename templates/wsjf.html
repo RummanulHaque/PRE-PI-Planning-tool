@@ -1,80 +1,111 @@
 {% extends "base.html" %}
 {% block content %}
 
+<h2 style="color:#86BC25;margin-top:0;">WSJF Prioritization</h2>
+
 {% for f in features %}
-<div class="card" style="position:relative; margin-bottom:25px; border-left: 5px solid {{ '#86BC25' if f['WSJF'] > 0 else '#334155' }};">
-    
-    <div style="position:absolute; right:20px; top:20px; text-align:right;">
-        <button onclick="openPoker('{{ f['Feature Name'] }}', '{{ f['Feature ID'] }}', {{ f['Business Value'] or 0 }}, {{ f['Time Complexity'] or 0 }}, {{ f['OE/RR Value'] or 0 }}, {{ f['Job Size'] or 1 }})" 
-                style="background: #86BC25; color: black; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;">
-            Planning Poker
-        </button>
-        <div style="margin-top:15px; font-size:11px; color:#94a3b8;">WSJF SCORE</div>
-        <div style="font-size:32px; font-weight:800; color:{{ '#86BC25' if f['WSJF'] > 0 else '#475569' }};">
-            {{ f["WSJF"] if f["WSJF"] > 0 else "0.00" }}
-        </div>
+<div class="card" style="position:relative; margin-bottom:30px; padding:22px; border:1px solid #1e293b; border-radius:16px; background:#0f172a; box-shadow:0 18px 35px rgba(0,0,0,0.25);">
+
+  <!-- WSJF SCORE -->
+  <div style="position:absolute; right:20px; top:20px; text-align:right;">
+    <div style="font-size:11px;color:#94a3b8;">Cost of Delay</div>
+    <div style="font-size:28px;font-weight:800;color:#86BC25;">
+      {{ f["Cost of Delay"] if (f["Cost of Delay"] == f["Cost of Delay"] and f["Cost of Delay"] != 0) else "—" }}
     </div>
 
-    <div style="color:#86BC25; font-size:12px; font-weight:bold;">{{ f["Feature ID"] }}</div>
-    <h3 style="margin: 8px 0; color: #fff;">{{ f["Feature Name"] }}</h3>
-    <p style="color:#cbd5f5; max-width:70%; font-size:14px;">{{ f["Feature Description"] }}</p>
+    <div style="font-size:11px;color:#94a3b8;margin-top:10px;">WSJF</div>
+    <div style="font-size:28px;font-weight:800;color:#86BC25;">
+      {{ f["WSJF"] if (f["WSJF"] == f["WSJF"] and f["WSJF"] != 0) else "—" }}
+    </div>
+  </div>
 
-    <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; margin-top: 15px; border: 1px solid #1e293b; max-width: 70%;">
-        <pre style="color:#94a3b8; font-size:12px; margin:0; white-space: pre-wrap; font-family: inherit;">{{ f["Feature Acceptance Criteria"] }}</pre>
+  <!-- FEATURE META -->
+  <div style="color:#86BC25;font-weight:800;font-size:12px;">
+    {{ f["Feature ID"] }}
+  </div>
+
+  <h3 style="margin:6px 0 10px 0;">{{ f["Feature Name"] }}</h3>
+
+  <p style="color:#cbd5f5; max-width:75%; margin:0 0 12px 0;">
+    {{ f["Feature Description"] }}
+  </p>
+
+  <pre style="color:#94a3b8; white-space:pre-wrap; max-width:75%; margin:0;">
+{{ f["Feature Acceptance Criteria"] }}
+  </pre>
+
+  <!-- WSJF INPUTS -->
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-top:18px;">
+
+    <div class="card" style="padding:16px; border:1px solid #1e293b; border-radius:14px; background:#0b1220;">
+      <div style="font-size:11px;color:#94a3b8;">Business Value</div>
+      <div style="font-size:20px;font-weight:700;">
+        {{ f["Business Value"] if (f["Business Value"] == f["Business Value"] and f["Business Value"] != 0) else "—" }}
+      </div>
     </div>
 
-    <div style="display:flex; gap:25px; margin-top:20px; padding-top: 15px; border-top: 1px solid #1e293b;">
-        <div style="text-align: center;"><div style="font-size: 10px; color: #94a3b8;">BV</div><div style="color: white; font-weight: bold;">{{ f['Business Value']|int }}</div></div>
-        <div style="text-align: center;"><div style="font-size: 10px; color: #94a3b8;">TC</div><div style="color: white; font-weight: bold;">{{ f['Time Complexity']|int }}</div></div>
-        <div style="text-align: center;"><div style="font-size: 10px; color: #94a3b8;">RROE</div><div style="color: white; font-weight: bold;">{{ f['OE/RR Value']|int }}</div></div>
-        <div style="text-align: center; border-left: 1px solid #334155; padding-left: 20px;"><div style="font-size: 10px; color: #86BC25;">JOB SIZE</div><div style="color: #86BC25; font-weight: bold;">{{ f['Job Size']|int }}</div></div>
+    <div class="card" style="padding:16px; border:1px solid #1e293b; border-radius:14px; background:#0b1220;">
+      <div style="font-size:11px;color:#94a3b8;">Time Complexity</div>
+      <div style="font-size:20px;font-weight:700;">
+        {{ f["Time Complexity"] if (f["Time Complexity"] == f["Time Complexity"] and f["Time Complexity"] != 0) else "—" }}
+      </div>
     </div>
+
+    <div class="card" style="padding:16px; border:1px solid #1e293b; border-radius:14px; background:#0b1220;">
+      <div style="font-size:11px;color:#94a3b8;">OE / RR Value</div>
+      <div style="font-size:20px;font-weight:700;">
+        {{ f["OE/RR Value"] if (f["OE/RR Value"] == f["OE/RR Value"] and f["OE/RR Value"] != 0) else "—" }}
+      </div>
+    </div>
+
+    <div class="card" style="padding:16px; border:1px solid #1e293b; border-radius:14px; background:#0b1220;">
+      <div style="font-size:11px;color:#94a3b8;">Job Size</div>
+      <div style="font-size:20px;font-weight:700;">
+        {{ f["Job Size"] if (f["Job Size"] == f["Job Size"] and f["Job Size"] != 0) else "—" }}
+      </div>
+    </div>
+
+    <div class="card" style="padding:16px; border:1px solid #1e293b; border-radius:14px; background:#0b1220;">
+      <div style="font-size:11px;color:#94a3b8;">Story Points</div>
+      <div style="font-size:20px;font-weight:700;">
+        {{ f["Story Points"] if (f["Story Points"] == f["Story Points"] and f["Story Points"] != 0) else "—" }}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Planning Poker CTA -->
+  <div style="margin-top:14px;">
+    <a href="/start_poker/{{ f['Feature ID'] }}"
+       style="display:inline-block;
+              padding:10px 14px;
+              border:1px solid #86BC25;
+              border-radius:12px;
+              color:#0b1220;
+              background:#86BC25;
+              font-weight:700;
+              text-decoration:none;">
+      🎯 Planning Poker for this Feature
+    </a>
+  </div>
+
 </div>
 {% endfor %}
 
-<div id="pokerModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.9); align-items:center; justify-content:center;">
-    <div style="background:#161c2d; padding:35px; border-radius:15px; width:480px; border:1px solid #334155;">
-        <h3 id="mTitle" style="color:#fff; margin-top:0;">Planning Poker</h3>
-        <p id="mID" style="color:#86BC25; font-size:12px; margin-top:-10px; margin-bottom: 25px;"></p>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
-            <div><label style="font-size:11px; color:#94a3b8;">Business Value</label><input type="number" id="mBV" style="width:100%; padding:10px; background:#0b1220; border:1px solid #334155; color:white; border-radius:6px;"></div>
-            <div><label style="font-size:11px; color:#94a3b8;">Time Complexity</label><input type="number" id="mTC" style="width:100%; padding:10px; background:#0b1220; border:1px solid #334155; color:white; border-radius:6px;"></div>
-            <div><label style="font-size:11px; color:#94a3b8;">RROE Value</label><input type="number" id="mRROE" style="width:100%; padding:10px; background:#0b1220; border:1px solid #334155; color:white; border-radius:6px;"></div>
-            <div><label style="font-size:11px; color:#86BC25;">Job Size</label><input type="number" id="mSize" style="width:100%; padding:10px; background:#0b1220; border:1px solid #86BC25; color:white; border-radius:6px;"></div>
-        </div>
-        <div style="display: flex; gap: 15px; margin-top: 30px;">
-            <button onclick="savePoker()" style="flex: 2; background:#86BC25; color:black; padding:14px; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">Submit Consensus</button>
-            <button onclick="document.getElementById('pokerModal').style.display='none'" style="flex: 1; background:#334155; color:white; padding:14px; border:none; border-radius:8px; cursor:pointer;">Cancel</button>
-        </div>
-    </div>
+<!-- WHAT THIS MEANS -->
+<div class="card" style="margin-top:40px; padding:22px; border:1px solid #1e293b; border-radius:16px; background:#0f172a;">
+  <h4 style="color:#86BC25;margin-top:0;">What this means</h4>
+  <p style="color:#94a3b8; margin:0;">
+    Features are ranked using SAFe WSJF. Items with higher WSJF deliver economic value sooner
+    and should be prioritized earlier during PI Planning.
+  </p>
 </div>
 
-<script>
-let currentID;
-function openPoker(name, id, bv, tc, rroe, size) {
-    currentID = id;
-    document.getElementById('mTitle').innerText = name;
-    document.getElementById('mID').innerText = id;
-    document.getElementById('mBV').value = bv;
-    document.getElementById('mTC').value = tc;
-    document.getElementById('mRROE').value = rroe;
-    document.getElementById('mSize').value = size;
-    document.getElementById('pokerModal').style.display = 'flex';
-}
-async function savePoker() {
-    const payload = {
-        id: currentID,
-        bv: parseInt(document.getElementById('mBV').value),
-        tc: parseInt(document.getElementById('mTC').value),
-        rroe: parseInt(document.getElementById('mRROE').value),
-        size: parseInt(document.getElementById('mSize').value)
-    };
-    const response = await fetch('/save_poker', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(payload)
-    });
-    if (response.ok) { window.location.reload(); }
-}
-</script>
+<!-- EXPORT -->
+<a href="/export/wsjf"
+   class="nav-link"
+   style="display:inline-block;margin-top:20px; padding:10px 14px; border:1px solid #1e293b; border-radius:12px; color:#cbd5f5; text-decoration:none;">
+  Export WSJF Excel
+</a>
+
 {% endblock %}
