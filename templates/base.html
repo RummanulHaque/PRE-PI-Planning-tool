@@ -1,25 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>PRE-PI & PI Planning Coach</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <title>PI Coach Elite</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
-
-<header>
-    <h1>PRE-PI & PI Planning Coach</h1>
-    <p>SAFe-inspired planning readiness & decision support</p>
-
-    <nav>
-        <a href="/">Capacity</a>
-        <a href="/wsjf">WSJF</a>
-        <a href="/pi">PI Planning</a>
-    </nav>
-</header>
-
-<main>
-    {% block content %}{% endblock %}
-</main>
-
+<body style="background: #0b1220; color: #f1f5f9; margin: 0; font-family: 'Inter', sans-serif;">
+    <header style="background: #000000; padding: 25px 40px; border-bottom: 1px solid #1e293b;">
+        <h1 style="margin: 0; font-size: 24px; color: #fff;">PRE-PI & PI Planning Coach</h1>
+        <nav style="margin-top: 15px;">
+            <a href="/wsjf" style="color: #cbd5f5; margin-right: 30px; text-decoration: underline;">WSJF</a>
+            <a href="/capacity" style="color: #cbd5f5; margin-right: 30px; text-decoration: underline;">Capacity</a>
+            <a href="/pi" style="color: #cbd5f5; text-decoration: underline;">PI Planning</a>
+            <a href="/pi" style="color: #cbd5f5; text-decoration: underline;">Planning Poker</a>
+        </nav>
+    </header>
+    <main style="padding: 40px;">
+        {% block content %}{% endblock %}
+    </main>
 </body>
 </html>

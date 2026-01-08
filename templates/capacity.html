@@ -1,42 +1,35 @@
 {% extends "base.html" %}
 {% block content %}
-
-<div class="card">
-    <h2>PRE-PI Capacity Readiness</h2>
-    <p>Checks whether the team is realistically ready to plan.</p>
-
-    <form method="post">
-        <input type="number" name="leaves" value="0" min="0">
-        <button type="submit">Recalculate</button>
-    </form>
-</div>
-
-<div class="card">
-    <div class="score-row">
-        <div>
-            <div class="score {{ status }}">{{ score }}</div>
-            <div>Readiness Score</div>
-        </div>
-
-        <div class="progress">
-            <div class="progress-fill {{ status }}" style="width: {{ score }}%"></div>
+<div style="background: #161c2d; padding: 30px; border-radius: 12px; border: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+    <div>
+        <h2 style="color: #86BC25; font-size: 14px; text-transform: uppercase;">PI Readiness Index</h2>
+        <div style="font-size: 54px; font-weight: 800; margin: 10px 0;">{{ score }}%</div>
+        <p style="color: #94a3b8;">Total Available: <strong>{{ capacity }} fte/days</strong></p>
+    </div>
+    <div style="width: 45%;">
+        <div style="background: rgba(255,255,255,0.1); height: 12px; border-radius: 10px; overflow: hidden;">
+            <div style="width: {{ score }}%; height: 100%; background: #86BC25; box-shadow: 0 0 15px #86BC25;"></div>
         </div>
     </div>
-
-    <p><strong>Total Available Capacity:</strong> {{ capacity }}</p>
 </div>
 
-<div class="card">
-    <h3>What this means</h3>
-    <div class="insight">
-        {% if status == "green" %}
-            The team has sufficient capacity to enter PI Planning confidently.
-        {% elif status == "amber" %}
-            Capacity is tight; strict scope control will be required.
-        {% else %}
-            Capacity is insufficient. Address availability before planning commitments.
-        {% endif %}
-    </div>
+<div style="background: #161c2d; padding: 30px; border-radius: 12px; border: 1px solid #1e293b;">
+    <h3 style="margin-top: 0;">Team A | Resource Allocation</h3>
+    <table width="100%" style="border-collapse: collapse; margin-top: 20px;">
+        <tr style="text-align: left; color: #94a3b8; border-bottom: 1px solid #1e293b; font-size: 12px;">
+            <th style="padding: 15px 0;">ENGINEER</th>
+            <th>LEAVES</th>
+            <th>NET CAPACITY</th>
+            <th>SPRINT AVG</th>
+        </tr>
+        {% for m in members %}
+        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <td style="padding: 15px 0; font-weight: bold;">{{ m.name }}</td>
+            <td style="color: #ef4444;">-{{ m.leaves }}d</td>
+            <td>{{ m.cap }}</td>
+            <td style="color: #86BC25;">{{ m.sprint_avg }}d</td>
+        </tr>
+        {% endfor %}
+    </table>
 </div>
-
 {% endblock %}

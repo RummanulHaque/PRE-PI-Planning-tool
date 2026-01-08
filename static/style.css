@@ -1,124 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
+:root {
+    --primary-green: #86BC25;
+    --dark-bg: #0b1220;
+    --header-bg: #000000;
+    --card-bg: #161c2d;
+    --border-color: #1e293b;
+}
+
 body {
     margin: 0;
-    font-family: "Segoe UI", Arial, sans-serif;
-    background: #0b1220;
-    color: #e5e7eb;
+    font-family: 'Inter', sans-serif;
+    background: var(--dark-bg);
+    color: #f1f5f9;
 }
 
 header {
-    background: #020617;
-    padding: 24px 40px;
-    border-bottom: 1px solid #1e293b;
+    background: var(--header-bg);
+    padding: 25px 40px;
+    border-bottom: 1px solid var(--border-color);
 }
 
-header h1 {
-    margin: 0;
-    font-size: 26px;
-    color: #f8fafc;
-}
-
-header p {
-    margin: 6px 0 0;
-    font-size: 14px;
-    color: #94a3b8;
-}
-
-nav {
-    margin-top: 14px;
-}
-
-nav a {
+.nav-link {
     color: #cbd5f5;
     margin-right: 30px;
     font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: 0.3s;
 }
 
-main {
-    padding: 40px;
+.nav-link:hover, .nav-link.active {
+    color: var(--primary-green);
+    border-bottom: 2px solid var(--primary-green);
+    padding-bottom: 5px;
 }
 
 .card {
-    background: #020617;
-    border-radius: 14px;
-    padding: 28px;
-    margin-bottom: 28px;
-    border: 1px solid #1e293b;
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 25px;
+    border: 1px solid var(--border-color);
 }
 
-.score-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+/* Gantt Board Table */
+.gantt-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
-.score {
-    font-size: 46px;
-    font-weight: 700;
-}
-
-.score.green { color: #22c55e; }
-.score.amber { color: #facc15; }
-.score.red { color: #ef4444; }
-
-.progress {
-    width: 60%;
-    height: 14px;
+.gantt-table th {
     background: #1e293b;
-    border-radius: 8px;
-    overflow: hidden;
+    color: #fff;
+    padding: 12px;
+    border: 1px solid var(--border-color);
 }
 
-.progress-fill {
-    height: 100%;
+.gantt-table td {
+    border: 1px solid var(--border-color);
+    height: 110px;
+    min-width: 130px;
+    vertical-align: top;
+    background: rgba(255,255,255,0.01);
 }
 
-.green { background: #22c55e; }
-.amber { background: #facc15; }
-.red { background: #ef4444; }
-
-.badge {
-    padding: 6px 14px;
-    border-radius: 18px;
-    font-size: 12px;
-    font-weight: 600;
+.row-label {
+    background: #0f172a !important;
+    font-weight: bold;
+    color: var(--primary-green);
+    text-align: center;
 }
 
-.badge.good {
-    background: rgba(34,197,94,0.15);
-    color: #22c55e;
-}
-
-.badge.warn {
-    background: rgba(250,204,21,0.15);
-    color: #facc15;
-}
-
-.badge.risk {
-    background: rgba(239,68,68,0.15);
-    color: #ef4444;
-}
-
-.insight {
-    margin-top: 15px;
-    padding: 16px;
-    border-left: 4px solid #38bdf8;
-    background: rgba(56,189,248,0.08);
-    color: #e0f2fe;
-}
-
-input[type="number"] {
+.feature-item {
+    background: #1e293b;
+    border: 1px solid #3b82f6;
     padding: 10px;
-    background: #020617;
-    color: white;
-    border: 1px solid #334155;
+    margin: 8px;
     border-radius: 8px;
+    cursor: grab;
+    font-size: 13px;
 }
 
-button {
-    padding: 10px 18px;
-    border-radius: 8px;
-    border: none;
-    background: #2563eb;
-    color: white;
-    font-weight: 600;
-}
+.tab-content { display: none; }
+.tab-content.active { display: block; }
