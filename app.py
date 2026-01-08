@@ -148,6 +148,18 @@ def pi_planning():
     features = df[["Feature Name"]].to_dict(orient="records")
     return render_template("pi_planning.html", features=features)
 
+@app.template_filter("dash_if_nan")
+def dash_if_nan(value):
+    try:
+        if value != value:  # NaN check
+            return "-"
+        if value == "" or value is None:
+            return "-"
+        return value
+    except:
+        return "-"
+
+
 # ==================================================
 # EXPORT EXCEL
 # ==================================================
