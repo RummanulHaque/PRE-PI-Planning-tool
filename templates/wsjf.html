@@ -1,260 +1,94 @@
 {% extends "base.html" %}
 {% block content %}
 
-<style>
-  .metric-grid{display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:14px;margin-top:14px}
-  .metric{background:#0b1220;border:1px solid #1e293b;border-radius:12px;padding:12px}
-  .metric .k{font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em}
-  .metric .v{display:flex;align-items:baseline;justify-content:space-between;margin-top:6px}
-  .metric .num{font-size:22px;font-weight:800;color:#fff}
-  .metric button{background:#86BC25;border:none;color:#000;font-weight:800;border-radius:8px;padding:6px 10px;cursor:pointer}
-  .pill{display:inline-block;background:#0b1220;border:1px solid #334155;color:#cbd5f5;padding:6px 10px;border-radius:999px;font-size:12px}
-  .score-box{position:absolute;top:18px;right:18px;text-align:right}
-  .score-box .lbl{font-size:11px;color:#94a3b8}
-  .score-box .big{font-size:34px;font-weight:900;color:#86BC25;line-height:1}
-  .modal{display:none;position:fixed;z-index:2000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.9);align-items:center;justify-content:center}
-  .modal-content{background:#161c2d;padding:22px;border-radius:15px;border:1px solid #1e293b;width:min(720px,92vw);text-align:left}
-  .poker-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:10px}
-  .poker-cell{background:#0b1220;border:1px solid #334155;border-radius:12px;padding:10px}
-  .poker-cell label{display:block;font-size:11px;color:#94a3b8;margin-bottom:6px}
-  select.poker-select{width:100%;padding:10px;border-radius:10px;background:#020617;border:1px solid #334155;color:#fff}
-  .helper{font-size:12px;color:#94a3b8;line-height:1.5}
-  .inline{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
-  .btn{background:#86BC25;border:none;color:#000;font-weight:900;border-radius:10px;padding:10px 14px;cursor:pointer}
-  .btn.secondary{background:#0b1220;color:#cbd5f5;border:1px solid #334155}
-  .btn.danger{background:#ef4444;color:#fff}
-  input.poker-input, textarea.poker-area{width:100%;padding:10px;margin:8px 0;background:#0b1220;border:1px solid #334155;color:#fff;border-radius:10px;box-sizing:border-box}
-</style>
-
 <h2 style="color:#86BC25;margin-top:0;">WSJF Prioritization</h2>
-<div class="pill">WSJF = (Business Value + Time Criticality + RR/OE) ÷ Job Size</div>
-<div class="pill" style="margin-left:8px;">Mini planning poker: 5 voters → consensus value</div>
 
+<!-- ========================= -->
+<!-- FEATURE CARDS -->
+<!-- ========================= -->
 {% for f in features %}
-<div id="feature-{{ loop.index }}" class="card" style="background:#0f172a; padding:22px; border-radius:14px; border:1px solid #1e293b; margin:18px 0; position:relative;">
-  <div class="score-box">
-    <div class="lbl">CoD</div>
-    <div id="cod-{{ loop.index }}" class="big" style="color:#cbd5f5;">{{ f.cod }}</div>
-    <div class="lbl" style="margin-top:10px;">WSJF</div>
-    <div id="wsjf-{{ loop.index }}" class="big">{{ f.wsjf }}</div>
-  </div>
+<div class="card" style="position:relative; margin-bottom:30px;">
 
-  <span style="color:#86BC25; font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:.12em;">{{ f.label }}</span>
-  <h3 style="margin:6px 0 0; color:#fff;">{{ f.name }}</h3>
-  <div style="margin-top:10px; font-size:13px; color:#cbd5f5;">
-    <small style="color:#94a3b8;">Rationale: <span id="reason-text-{{ loop.index }}">{{ f.rationale }}</span></small>
-  </div>
-
-  <div class="metric-grid">
-    <div class="metric">
-      <div class="k">Business value</div>
-      <div class="v">
-        <div class="num" id="bv-{{ loop.index }}">{{ f.bv }}</div>
-        <button onclick="openPoker({{ loop.index }}, '{{ f.name|e }}', 'bv')">Vote</button>
-      </div>
-      <div class="helper">How much value does this deliver?</div>
+  <!-- WSJF SCORE -->
+  <div style="position:absolute; right:20px; top:20px; text-align:right;">
+    <div style="font-size:11px;color:#94a3b8;">Cost of Delay</div>
+    <div style="font-size:28px;font-weight:800;color:#86BC25;">
+      {{ f["Cost of Delay"] if f["Cost of Delay"] == f["Cost of Delay"] else "—" }}
     </div>
 
-    <div class="metric">
-      <div class="k">Time criticality</div>
-      <div class="v">
-        <div class="num" id="tc-{{ loop.index }}">{{ f.tc }}</div>
-        <button onclick="openPoker({{ loop.index }}, '{{ f.name|e }}', 'tc')">Vote</button>
-      </div>
-      <div class="helper">Is there a deadline or market window?</div>
-    </div>
-
-    <div class="metric">
-      <div class="k">RR / OE value</div>
-      <div class="v">
-        <div class="num" id="rr-{{ loop.index }}">{{ f.rr }}</div>
-        <button onclick="openPoker({{ loop.index }}, '{{ f.name|e }}', 'rr')">Vote</button>
-      </div>
-      <div class="helper">Risk reduction / opportunity enablement.</div>
-    </div>
-
-    <div class="metric">
-      <div class="k">Job size</div>
-      <div class="v">
-        <div class="num" id="size-{{ loop.index }}">{{ f.size }}</div>
-        <button onclick="openPoker({{ loop.index }}, '{{ f.name|e }}', 'size')">Vote</button>
-      </div>
-      <div class="helper">Relative effort / size (Fibonacci).</div>
+    <div style="font-size:11px;color:#94a3b8;margin-top:10px;">WSJF</div>
+    <div style="font-size:28px;font-weight:800;color:#86BC25;">
+      {{ f["WSJF"] if f["WSJF"] == f["WSJF"] else "—" }}
     </div>
   </div>
+
+  <!-- FEATURE META -->
+  <div style="color:#86BC25;font-weight:800;font-size:12px;">
+    {{ f["Feature ID"] }}
+  </div>
+
+  <h3 style="margin-top:6px;">{{ f["Feature Name"] }}</h3>
+
+  <p style="color:#cbd5f5; max-width:75%;">
+    {{ f["Feature Description"] }}
+  </p>
+
+  <pre style="color:#94a3b8; white-space:pre-wrap; max-width:75%;">
+{{ f["Feature Acceptance Criteria"] }}
+  </pre>
+
+  <!-- WSJF INPUTS -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:20px;">
+    <div class="card">
+      <div style="font-size:11px;color:#94a3b8;">Business Value</div>
+      <div style="font-size:20px;font-weight:700;">
+        {{ f["Business Value"] or "—" }}
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:11px;color:#94a3b8;">Time Criticality</div>
+      <div style="font-size:20px;font-weight:700;">
+        {{ f["Time Criticality"] or "—" }}
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:11px;color:#94a3b8;">RR / OE</div>
+      <div style="font-size:20px;font-weight:700;">
+        {{ f["OE / RR Value"] or "—" }}
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:11px;color:#94a3b8;">Job Size</div>
+      <div style="font-size:20px;font-weight:700;">
+        {{ f["Job Size"] or "—" }}
+      </div>
+    </div>
+  </div>
+
 </div>
 {% endfor %}
 
-<div class="card" style="background:#020617; border:1px solid #334155; padding:18px; border-radius:14px; margin-top:20px;">
-  <h4 style="color:#86BC25; margin:0 0 8px;">Session Notes</h4>
-  <div class="helper">
-    Tip: Use <b>Vote</b> on each metric. If the 5 people disagree, the modal shows a recommended consensus (median) and the range of votes.
-  </div>
+<!-- ========================= -->
+<!-- WHAT THIS MEANS -->
+<!-- ========================= -->
+<div class="card" style="margin-top:40px;">
+  <h4 style="color:#86BC25;margin-top:0;">What this means</h4>
+  <p style="color:#94a3b8;">
+    Features are ranked using SAFe WSJF. Items with higher WSJF deliver economic value sooner
+    and should be prioritized earlier during PI Planning.
+  </p>
 </div>
 
-<!-- Planning Poker Modal -->
-<div id="pokerModal" class="modal">
-  <div class="modal-content">
-    <h3 id="pokerTitle" style="color:#fff;margin:0;">Planning Poker – Consensus Input</h3>
-    <div class="helper" style="margin-top:6px;">
-      Feature: <span id="pokerFeature" style="color:#cbd5f5;font-weight:800;"></span><br>
-      Metric: <span id="pokerMetric" style="color:#cbd5f5;font-weight:800;"></span> • 5 people voting
-    </div>
-
-    <div class="inline">
-      <div class="pill" id="voteRange">Range: —</div>
-      <div class="pill" id="voteConsensus">Recommended (median): —</div>
-      <button class="btn secondary" onclick="useRecommended()">Use recommended</button>
-    </div>
-
-    <div class="poker-row">
-      {% for i in range(1,6) %}
-      <div class="poker-cell">
-        <label>Voter {{ i }}</label>
-        <select class="poker-select" id="v{{ i }}" onchange="recalcConsensus()">
-          <option value="">—</option>
-        </select>
-      </div>
-      {% endfor %}
-    </div>
-
-    <label style="font-size:12px; color:#94a3b8; margin-top:14px; display:block;">Final value (what we will take as input):</label>
-    <input type="number" id="finalValue" class="poker-input" placeholder="Enter or use recommended">
-
-    <label style="font-size:12px; color:#94a3b8; display:block;">Reason / justification (optional):</label>
-    <textarea id="reasonInput" class="poker-area" rows="3" placeholder="Why this value?"></textarea>
-
-    <div class="inline" style="justify-content:flex-end;">
-      <button class="btn" onclick="applyPoker()">Apply</button>
-      <button class="btn secondary" onclick="closePoker()">Close</button>
-    </div>
-  </div>
-</div>
-
-<script>
-  // Config
-  const FIB = [0.5, 1, 2, 3, 5, 8, 13, 21, 34];
-
-  let activeIdx = null;
-  let activeKey = null;
-
-  function metricLabel(key){
-    if(key === 'bv') return 'Business Value';
-    if(key === 'tc') return 'Time Criticality';
-    if(key === 'rr') return 'RR / OE Value';
-    if(key === 'size') return 'Job Size';
-    return key;
-  }
-
-  function fillVoteOptions(){
-    for(let i=1;i<=5;i++){
-      const sel = document.getElementById('v'+i);
-      sel.innerHTML = '<option value="">—</option>';
-      for(const v of FIB){
-        const opt = document.createElement('option');
-        opt.value = v;
-        opt.textContent = v;
-        sel.appendChild(opt);
-      }
-    }
-  }
-
-  function openPoker(idx, featureName, key){
-    activeIdx = idx;
-    activeKey = key;
-    document.getElementById('pokerFeature').innerText = featureName;
-    document.getElementById('pokerMetric').innerText = metricLabel(key);
-
-    // Reset modal fields
-    fillVoteOptions();
-    for(let i=1;i<=5;i++){ document.getElementById('v'+i).value=''; }
-    document.getElementById('reasonInput').value = '';
-
-    // Pre-fill final value with the current value (suggested by whoever last set it)
-    const current = parseFloat(document.getElementById(key + '-' + idx).innerText) || 0;
-    document.getElementById('finalValue').value = current;
-
-    document.getElementById('voteRange').innerText = 'Range: —';
-    document.getElementById('voteConsensus').innerText = 'Recommended (median): —';
-
-    document.getElementById('pokerModal').style.display = 'flex';
-  }
-
-  function closePoker(){
-    document.getElementById('pokerModal').style.display = 'none';
-  }
-
-  function median(values){
-    const a = values.slice().sort((x,y)=>x-y);
-    const mid = Math.floor(a.length/2);
-    if(a.length % 2) return a[mid];
-    return (a[mid-1] + a[mid]) / 2.0;
-  }
-
-  function recalcConsensus(){
-    const votes = [];
-    for(let i=1;i<=5;i++){
-      const v = parseFloat(document.getElementById('v'+i).value);
-      if(!isNaN(v)) votes.push(v);
-    }
-    if(votes.length === 0){
-      document.getElementById('voteRange').innerText = 'Range: —';
-      document.getElementById('voteConsensus').innerText = 'Recommended (median): —';
-      return;
-    }
-    const minV = Math.min(...votes);
-    const maxV = Math.max(...votes);
-    const med = median(votes);
-
-    document.getElementById('voteRange').innerText = `Range: ${minV} → ${maxV} (${votes.length}/5 voted)`;
-    document.getElementById('voteConsensus').innerText = `Recommended (median): ${med}`;
-
-    // If everyone voted and the range is tight, auto-set final value (still editable)
-    if(votes.length === 5 && minV === maxV){
-      document.getElementById('finalValue').value = med;
-    }
-  }
-
-  function useRecommended(){
-    const txt = document.getElementById('voteConsensus').innerText;
-    const m = txt.match(/([0-9]+\.?[0-9]*)$/);
-    if(m){ document.getElementById('finalValue').value = parseFloat(m[1]); }
-  }
-
-  function recalcFeature(idx){
-    const bv = parseFloat(document.getElementById('bv-'+idx).innerText) || 0;
-    const tc = parseFloat(document.getElementById('tc-'+idx).innerText) || 0;
-    const rr = parseFloat(document.getElementById('rr-'+idx).innerText) || 0;
-    const size = parseFloat(document.getElementById('size-'+idx).innerText) || 0;
-
-    const cod = bv + tc + rr;
-    document.getElementById('cod-'+idx).innerText = cod;
-
-    const wsjf = (size > 0) ? (cod / size).toFixed(2) : '—';
-    document.getElementById('wsjf-'+idx).innerText = wsjf;
-  }
-
-  function applyPoker(){
-    const finalValue = parseFloat(document.getElementById('finalValue').value);
-    const reason = document.getElementById('reasonInput').value;
-
-    if(activeIdx && activeKey && !isNaN(finalValue)){
-      document.getElementById(activeKey + '-' + activeIdx).innerText = finalValue;
-
-      // If BV changed and reason captured, update rationale line (optional)
-      if(reason && activeKey === 'bv'){
-        document.getElementById('reason-text-' + activeIdx).innerText = reason;
-      }
-
-      recalcFeature(activeIdx);
-    }
-    closePoker();
-  }
-
-  // Close on background click
-  document.getElementById('pokerModal').addEventListener('click', (e)=>{
-    if(e.target.id === 'pokerModal') closePoker();
-  });
-</script>
+<!-- ========================= -->
+<!-- EXPORT -->
+<!-- ========================= -->
+<a href="/export/wsjf"
+   class="nav-link"
+   style="display:inline-block;margin-top:20px;">
+  Export WSJF Excel
+</a>
 
 {% endblock %}
