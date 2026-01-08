@@ -1,42 +1,91 @@
 {% extends "base.html" %}
 {% block content %}
+
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
-<div style="display: flex; gap: 20px;">
-    <div id="bank" style="width: 280px; background: #161c2d; padding: 20px; border-radius: 12px; height: 80vh; overflow-y: auto;">
-        <h3 style="color: #86BC25; margin-top: 0;">Feature Bank</h3>
+<div style="display:flex; gap:20px;">
+
+    <!-- FEATURE BANK -->
+    <div id="bank"
+         style="width:280px; background:#161c2d; padding:20px;
+                border-radius:12px; height:80vh; overflow-y:auto;">
+
+        <h3 style="color:#86BC25; margin-top:0;">Feature Bank (WSJF)</h3>
+
         {% for f in features %}
-        <div class="card feature-item" data-name="{{ f['Feature Name'] }}" style="padding: 10px; margin-bottom: 10px; cursor: grab; font-size: 12px; border: 1px solid #334155; background: #0f172a;">
-            <strong>{{ f['Feature Name'] }}</strong>
+        <div class="card feature-item"
+             data-name="{{ f['Feature Name'] }}"
+             data-wsjf="{{ f['WSJF'] }}"
+             style="padding:10px; margin-bottom:10px;
+                    cursor:grab; font-size:12px;
+                    border:1px solid #334155;
+                    background:#0f172a;">
+
+            <strong>{{ f["Feature Name"] }}</strong>
+
+            <div style="font-size:10px; color:#94a3b8; margin-top:4px;">
+                WSJF: {{ f["WSJF"] }}
+            </div>
+
+            <div style="font-size:10px; color:#64748b;">
+                Story Points: {{ f["Story Points"] if f["Story Points"] else "—" }}
+            </div>
         </div>
         {% endfor %}
     </div>
 
-    <div style="flex-grow: 1;">
-        <h2 style="color: #86BC25; margin-top: 0;">PI Planning Board</h2>
-        <table width="100%" style="border-collapse: collapse; color: white;">
+    <!-- PI BOARD -->
+    <div style="flex-grow:1;">
+        <h2 style="color:#86BC25; margin-top:0;">PI Planning Board</h2>
+
+        <table width="100%" style="border-collapse:collapse; color:white;">
             <thead>
-                <tr style="background: #000;">
-                    <th style="width: 120px; border: 1px solid #334155; padding: 10px;">Story Points</th>
-                    {% for i in range(1, 7) %}<th style="border: 1px solid #334155;">Sprint {{ i }}</th>{% endfor %}
+                <tr style="background:#000;">
+                    <th style="width:120px; border:1px solid #334155; padding:10px;">
+                        Story Points
+                    </th>
+                    {% for i in range(1,7) %}
+                    <th style="border:1px solid #334155;">Sprint {{ i }}</th>
+                    {% endfor %}
                 </tr>
             </thead>
+
             <tbody>
-                {% for sp in [1, 2, 3, 5, 8, 13, 21] %}
+                {% for sp in [1,2,3,5,8,13,21] %}
                 <tr>
-                    <td style="background: #0f172a; text-align: center; border: 1px solid #334155; color: #86BC25; font-weight: bold;">{{ sp }}</td>
-                    {% for i in range(1, 7) %}<td class="drop-zone" style="border: 1px solid #334155; height: 70px; background: rgba(255,255,255,0.01);"></td>{% endfor %}
+                    <td style="background:#0f172a; text-align:center;
+                               border:1px solid #334155;
+                               color:#86BC25; font-weight:bold;">
+                        {{ sp }}
+                    </td>
+
+                    {% for i in range(1,7) %}
+                    <td class="drop-zone"
+                        style="border:1px solid #334155;
+                               height:70px;
+                               background:rgba(255,255,255,0.01);">
+                    </td>
+                    {% endfor %}
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+
 </div>
 
 <script>
-    const zones = [document.getElementById('bank'), ...document.querySelectorAll('.drop-zone')];
-    zones.forEach(z => {
-        new Sortable(z, { group: 'pi', animation: 150 });
+    const zones = [
+        document.getElementById('bank'),
+        ...document.querySelectorAll('.drop-zone')
+    ];
+
+    zones.forEach(zone => {
+        new Sortable(zone, {
+            group: 'pi',
+            animation: 150
+        });
     });
 </script>
+
 {% endblock %}
