@@ -1,3 +1,4 @@
+
 from flask import Flask, render_template, send_file, request, redirect, url_for, session, jsonify
 import pandas as pd
 import os
@@ -181,8 +182,33 @@ def capacity():
 @app.route("/pi")
 def pi_planning():
     df = ensure_excel_with_features()
-    features = df[["Feature Name"]].to_dict(orient="records")
+
+    # Ensure numeric fields
+    for col in ["Business Value", "Time Complexity", "OE/RR Value", "Job Size"]:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    # Recalculate WSJF (same logic as WSJF page)
+    bv = df["Business Value"].fillna(0)
+    tc = df["Time Complexity"].fillna(0)
+    oe = df["OE/RR Value"].fillna(0)
+
+    df["Cost of Delay"] = bv + tc + oe
+
+    df["WSJF"] = df.apply(
+        lambda row: round(row["Cost of Delay"] / row["Job Size"], 2)
+        if pd.notna(row["Job Size"]) and row["Job Size"] > 0
+        else 0,
+        axis=1
+    )
+
+    # 🔥 SORT BY WSJF DESCENDING
+    df = df.sort_values(by="WSJF", ascending=False)
+
+    # Pass WSJF also (nothing else)
+    features = df[["Feature Name", "WSJF"]].to_dict(orient="records")
+
     return render_template("pi_planning.html", features=features)
+
 
 # ==================================================
 # EXPORT EXCEL
