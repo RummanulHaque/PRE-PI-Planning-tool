@@ -1,20 +1,80 @@
 {% extends "base.html" %}
 {% block content %}
-<div style="background: #161c2d; padding: 30px; border-radius: 12px; border: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-    <div>
-        <h2 style="color: #86BC25; font-size: 14px; text-transform: uppercase;">PI Readiness Index</h2>
-        <div style="font-size: 54px; font-weight: 800; margin: 10px 0;">{{ score }}%</div>
-        <p style="color: #94a3b8;">Total Available: <strong>{{ capacity }} fte/days</strong></p>
-    </div>
-    <div style="width: 45%;">
-        <div style="background: rgba(255,255,255,0.1); height: 12px; border-radius: 10px; overflow: hidden;">
-            <div style="width: {{ score }}%; height: 100%; background: #86BC25; box-shadow: 0 0 15px #86BC25;"></div>
+
+<!-- ================= PI READINESS ================= -->
+<div style="background: #161c2d; padding: 30px; border-radius: 14px; border: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: stretch; margin-bottom: 30px; gap: 22px;">
+
+  <!-- LEFT: SCORE -->
+  <div style="flex: 1;">
+      <h2 style="color: #86BC25; font-size: 14px; text-transform: uppercase; margin: 0;">
+        PI Readiness Index
+      </h2>
+
+      <!-- Current PI indicator (as text, above %) -->
+      <div style="margin-top: 8px; font-size: 12px; color: #94a3b8;">
+        Current PI: <span style="color:#cbd5f5; font-weight: 800;">PI-Q4</span>
+      </div>
+
+      <div style="font-size: 54px; font-weight: 800; margin: 10px 0 6px 0;">
+        {{ score }}%
+      </div>
+
+      <p style="color: #94a3b8; margin: 0;">
+        Total Available: <strong style="color:#cbd5f5;">{{ capacity }} fte/days</strong>
+      </p>
+
+      <!-- Progress bar -->
+      <div style="margin-top: 18px; background: rgba(255,255,255,0.08); height: 12px; border-radius: 10px; overflow: hidden;">
+          <div style="width: {{ score }}%; height: 100%; background: #86BC25; box-shadow: 0 0 15px rgba(134,188,37,0.7);"></div>
+      </div>
+  </div>
+
+  <!-- RIGHT: PI HISTORY (Q1-Q3 only) -->
+  <div style="width: 44%; min-width: 360px; display:flex; flex-direction:column; justify-content:center;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+        <div style="color:#cbd5f5; font-weight:900; font-size:12px; letter-spacing:0.5px; text-transform:uppercase;">
+          PI Capacity History
         </div>
-    </div>
+        <div style="color:#94a3b8; font-size:12px;">
+          (Previous PIs)
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap: 12px;">
+        <!-- Q1 -->
+        <div style="border:1px solid #1e293b; border-radius:14px; padding:14px; background:#0f172a;">
+          <div style="font-size:11px; color:#94a3b8;">PI-Q1</div>
+          <div style="margin-top:6px; font-size:18px; font-weight:900; color:#cbd5f5;">260</div>
+          <div style="font-size:11px; color:#94a3b8;">fte/days</div>
+        </div>
+
+        <!-- Q2 -->
+        <div style="border:1px solid #1e293b; border-radius:14px; padding:14px; background:#0f172a;">
+          <div style="font-size:11px; color:#94a3b8;">PI-Q2</div>
+          <div style="margin-top:6px; font-size:18px; font-weight:900; color:#cbd5f5;">275</div>
+          <div style="font-size:11px; color:#94a3b8;">fte/days</div>
+        </div>
+
+        <!-- Q3 -->
+        <div style="border:1px solid #1e293b; border-radius:14px; padding:14px; background:#0f172a;">
+          <div style="font-size:11px; color:#94a3b8;">PI-Q3</div>
+          <div style="margin-top:6px; font-size:18px; font-weight:900; color:#cbd5f5;">290</div>
+          <div style="font-size:11px; color:#94a3b8;">fte/days</div>
+        </div>
+      </div>
+
+      <!-- Optional hint line (clean) -->
+      <div style="margin-top: 10px; color:#94a3b8; font-size: 12px;">
+        Use this to compare PI-over-PI capacity changes before planning.
+      </div>
+  </div>
+
 </div>
 
-<div style="background: #161c2d; padding: 30px; border-radius: 12px; border: 1px solid #1e293b;">
+<!-- ================= TEAM CAPACITY TABLE ================= -->
+<div style="background: #161c2d; padding: 30px; border-radius: 14px; border: 1px solid #1e293b;">
     <h3 style="margin-top: 0;">Team A | Resource Allocation</h3>
+
     <table width="100%" style="border-collapse: collapse; margin-top: 20px;">
         <tr style="text-align: left; color: #94a3b8; border-bottom: 1px solid #1e293b; font-size: 12px;">
             <th style="padding: 15px 0;">ENGINEER</th>
@@ -22,6 +82,7 @@
             <th>NET CAPACITY</th>
             <th>SPRINT AVG</th>
         </tr>
+
         {% for m in members %}
         <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
             <td style="padding: 15px 0; font-weight: bold;">{{ m.name }}</td>
@@ -32,4 +93,5 @@
         {% endfor %}
     </table>
 </div>
+
 {% endblock %}
