@@ -9,11 +9,14 @@
 <body style="background: #0b1220; color: #f1f5f9; margin: 0; font-family: 'Inter', sans-serif;">
     <header style="background: #000000; padding: 25px 40px; border-bottom: 1px solid #1e293b;">
         <h1 style="margin: 0; font-size: 24px; color: #fff;">PRE-PI & PI Planning Coach</h1>
+        {% if not hide_nav %}
         <nav style="margin-top: 15px;">
             <a href="/wsjf" style="color: #cbd5f5; margin-right: 30px; text-decoration: underline;">WSJF</a>
             <a href="/capacity" style="color: #cbd5f5; margin-right: 30px; text-decoration: underline;">Capacity</a>
             <a href="/pi" style="color: #cbd5f5; text-decoration: underline;">PI Planning</a>
         </nav>
+        {% endif %}
+
     </header>
     <main style="padding: 40px;">
         {% block content %}{% endblock %}

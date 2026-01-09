@@ -8,12 +8,31 @@
 
   <!-- WSJF SCORE -->
   <div style="position:absolute; right:20px; top:20px; text-align:right;">
-    <div style="font-size:11px;color:#94a3b8;">Cost of Delay</div>
+    <div style="font-size:11px;color:#94a3b8;">
+      Cost of Delay
+      <span class="tooltip">ⓘ
+        <span class="tip">
+          Total economic impact of delaying this feature.
+          Calculated as: Business Value + Time Criticality + OE/RR Value.
+        </span>
+      </span>
+    </div>
+
     <div style="font-size:28px;font-weight:800;color:#86BC25;">
       {{ f["Cost of Delay"] if (f["Cost of Delay"] == f["Cost of Delay"] and f["Cost of Delay"] != 0) else "—" }}
     </div>
 
-    <div style="font-size:11px;color:#94a3b8;margin-top:10px;">WSJF</div>
+    <div style="font-size:11px;color:#94a3b8;">
+      WSJF
+      <span class="tooltip">ⓘ
+        <span class="tip">
+          Weighted Shortest Job First.
+          Used to prioritize features by dividing Cost of Delay by Job Size.
+          Higher WSJF = higher priority.
+        </span>
+      </span>
+    </div>
+
     <div style="font-size:28px;font-weight:800;color:#86BC25;">
       {{ f["WSJF"] if (f["WSJF"] == f["WSJF"] and f["WSJF"] != 0) else "—" }}
     </div>
@@ -38,28 +57,63 @@
   <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-top:18px;">
 
     <div class="card" style="padding:16px; border:1px solid #1e293b; border-radius:14px; background:#0b1220;">
-      <div style="font-size:11px;color:#94a3b8;">Business Value</div>
+      <div style="font-size:11px;color:#94a3b8;">
+        Business Value
+        <span class="tooltip">ⓘ
+          <span class="tip">
+            Measures the business impact of delivering this feature.
+            Higher value = more revenue, customer impact, or strategic importance.
+          </span>
+        </span>
+      </div>
+
       <div style="font-size:20px;font-weight:700;">
         {{ f["Business Value"] if (f["Business Value"] == f["Business Value"] and f["Business Value"] != 0) else "—" }}
       </div>
     </div>
 
     <div class="card" style="padding:16px; border:1px solid #1e293b; border-radius:14px; background:#0b1220;">
-      <div style="font-size:11px;color:#94a3b8;">Time Complexity</div>
+      <div style="font-size:11px;color:#94a3b8;">Time Criticality
+        <span class="tooltip">ⓘ
+          <span class="tip">
+            Indicates how urgent this feature is.
+            Delays may cause missed deadlines, regulatory risk, or lost market opportunity.
+          </span>
+      </span>
+    </div>
+
       <div style="font-size:20px;font-weight:700;">
         {{ f["Time Complexity"] if (f["Time Complexity"] == f["Time Complexity"] and f["Time Complexity"] != 0) else "—" }}
       </div>
     </div>
 
     <div class="card" style="padding:16px; border:1px solid #1e293b; border-radius:14px; background:#0b1220;">
-      <div style="font-size:11px;color:#94a3b8;">OE / RR Value</div>
+      <div style="font-size:11px;color:#94a3b8;">
+        OE / RR Value
+        <span class="tooltip">ⓘ
+          <span class="tip">
+            Opportunity Enablement / Risk Reduction.
+            Reflects how much this feature reduces risk or enables future business options.
+          </span>
+        </span>
+      </div>
+
       <div style="font-size:20px;font-weight:700;">
         {{ f["OE/RR Value"] if (f["OE/RR Value"] == f["OE/RR Value"] and f["OE/RR Value"] != 0) else "—" }}
       </div>
     </div>
 
     <div class="card" style="padding:16px; border:1px solid #1e293b; border-radius:14px; background:#0b1220;">
-      <div style="font-size:11px;color:#94a3b8;">Job Size</div>
+      <div style="font-size:11px;color:#94a3b8;">
+        Job Size
+        <span class="tooltip">ⓘ
+          <span class="tip">
+            Represents the relative effort to deliver this feature.
+            Typically estimated in story points or normalized size units.
+          </span>
+        </span>
+      </div>
+
       <div style="font-size:20px;font-weight:700;">
         {{ f["Job Size"] if (f["Job Size"] == f["Job Size"] and f["Job Size"] != 0) else "—" }}
       </div>

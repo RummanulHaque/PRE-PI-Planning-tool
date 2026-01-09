@@ -5,9 +5,11 @@
 <div style="display: flex; gap: 20px;">
     <div id="bank" style="width: 280px; background: #161c2d; padding: 20px; border-radius: 12px; height: 80vh; overflow-y: auto;">
         <h3 style="color: #86BC25; margin-top: 0;">Feature Bank</h3>
+
         {% for f in features %}
         <div class="card feature-item"
             data-name="{{ f['Feature Name'] }}"
+            data-sp="{{ f['Story Points'] if f['Story Points'] == f['Story Points'] and f['Story Points'] != 0 else 0 }}"
             style="padding: 10px;
             margin-bottom: 10px;
             cursor: grab;
@@ -20,27 +22,39 @@
             </div>
 
             <div style="font-size:11px; color:#86BC25; margin-top:4px;">
-                WSJF: {{ f['WSJF'] }}
+                WSJF: {{ f['WSJF'] if f['WSJF'] == f['WSJF'] and f['WSJF'] != 0 else "—" }}
             </div>
-        </div>
 
+            <div style="font-size:11px; color:#94a3b8; margin-top:4px;">
+                Story Points: {{ f['Story Points'] if f['Story Points'] == f['Story Points'] and f['Story Points'] != 0 else "—" }}
+            </div>
+
+        </div>
         {% endfor %}
     </div>
 
     <div style="flex-grow: 1;">
         <h2 style="color: #86BC25; margin-top: 0;">PI Planning Board</h2>
+
         <table width="100%" style="border-collapse: collapse; color: white;">
             <thead>
                 <tr style="background: #000;">
                     {% for i in range(1, 7) %}
-                      <th style="border: 1px solid #334155; padding: 10px;">Sprint {{ i }}</th>
+                      <th id="sprint-header-{{ i }}" style="border: 1px solid #334155; padding: 10px;">
+                        Sprint {{ i }}
+                        <span id="sprint-sp-{{ i }}" style="margin-left:8px; color:#86BC25; font-weight:800; font-size:12px;">
+                          (SP: 0)
+                        </span>
+                      </th>
                     {% endfor %}
                 </tr>
             </thead>
+
             <tbody>
                 <tr>
                     {% for i in range(1, 7) %}
                       <td class="drop-zone"
+                          data-sprint="{{ i }}"
                           style="border: 1px solid #334155; height: 420px; background: rgba(255,255,255,0.01); vertical-align: top;">
                       </td>
                     {% endfor %}
@@ -51,9 +65,45 @@
 </div>
 
 <script>
-    const zones = [document.getElementById('bank'), ...document.querySelectorAll('.drop-zone')];
+    function getStoryPointsFromItem(el){
+        const sp = parseFloat(el.dataset.sp || "0");
+        return isNaN(sp) ? 0 : sp;
+    }
+
+    function updateSprintTotals(){
+        document.querySelectorAll(".drop-zone").forEach(zone => {
+            const sprint = zone.dataset.sprint;
+            let total = 0;
+
+            zone.querySelectorAll(".feature-item").forEach(item => {
+                total += getStoryPointsFromItem(item);
+            });
+
+            const label = document.getElementById("sprint-sp-" + sprint);
+            if(label){
+                label.textContent = `(SP: ${total})`;
+            }
+        });
+    }
+
+    const bank = document.getElementById('bank');
+    const sprintZones = [...document.querySelectorAll('.drop-zone')];
+
+    // Make all zones sortable and hook updates
+    const zones = [bank, ...sprintZones];
+
     zones.forEach(z => {
-        new Sortable(z, { group: 'pi', animation: 150 });
+        new Sortable(z, {
+            group: 'pi',
+            animation: 150,
+            onAdd: updateSprintTotals,
+            onRemove: updateSprintTotals,
+            onUpdate: updateSprintTotals,
+            onEnd: updateSprintTotals
+        });
     });
+
+    // Initial calculation (in case something is preloaded later)
+    updateSprintTotals();
 </script>
 {% endblock %}

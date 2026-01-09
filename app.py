@@ -107,10 +107,28 @@ def _require_host(session_id: str):
         return False
     return session.get("user") == s.get("host_name")
 
+@app.route("/", methods=["GET", "POST"])
+def home():
+    PROJECTS = [
+        "Digital Channels",
+        "Payments",
+        "Data Platform",
+        "Agile Gamification PoC",
+    ]
+
+    if request.method == "POST":
+        selected = request.form.get("project", "").strip()
+        session["selected_project"] = selected if selected else "—"
+        return redirect(url_for("wsjf"))
+
+    # 👇 hide top nav on this page
+    return render_template("home.html", projects=PROJECTS, hide_nav=True)
+
+
+
 # ==================================================
 # WSJF PAGE
 # ==================================================
-@app.route("/")
 @app.route("/wsjf")
 def wsjf():
     df = ensure_excel_with_features()
@@ -146,32 +164,44 @@ def wsjf():
 # ==================================================
 @app.route("/capacity")
 def capacity():
+    import math
+
     TEAM_MEMBERS = [
-        {"name": "John", "leaves": 10},
-        {"name": "Tom", "leaves": 4},
-        {"name": "Sarah", "leaves": 2},
-        {"name": "Emma", "leaves": 6},
+        {"name": "John", "role": "Backend Engineer", "leaves": 10, "last_sprint_sp": 7},
+        {"name": "Tom", "role": "Frontend Engineer", "leaves": 4, "last_sprint_sp": 6},
+        {"name": "Sarah", "role": "QA Engineer", "leaves": 2, "last_sprint_sp": 8},
+        {"name": "Emma", "role": "Scrum Master", "leaves": 6, "last_sprint_sp": 5},
     ]
 
     member_details = []
-    total_cap = 0
+    total_cap_days = 0  # this is fte/days across the PI window
 
     for m in TEAM_MEMBERS:
-        cap = round((60 - m["leaves"]) * 0.7, 0)
-        total_cap += cap
+        cap_days = round((60 - m["leaves"]) * 0.7, 0)  # PI capacity in days
+        total_cap_days += cap_days
+
         member_details.append({
             **m,
-            "cap": cap,
-            "sprint_avg": round(cap / 6, 1)
+            "cap": cap_days,
+            # show per-sprint average (whole number) - display only
+            "sprint_avg": round(cap_days / 6)
         })
 
-    score = min(int((total_cap / 300) * 100), 100)
-    status = "green" if total_cap >= 300 else "amber" if total_cap >= 270 else "red"
+    # ✅ Committable Story Points (no rounding inflation)
+    # Convert total PI-days -> SP per sprint (floor), then multiply by 6 sprints
+    sp_per_sprint = math.floor(total_cap_days / 6)
+    total_sp_pi = sp_per_sprint * 6
+
+    # Your score logic (keep as-is, but base on days)
+    score = min(int((total_cap_days / 300) * 100), 100)
+    status = "green" if total_cap_days >= 300 else "amber" if total_cap_days >= 270 else "red"
 
     return render_template(
         "capacity.html",
         members=member_details,
-        capacity=int(total_cap),
+        capacity=int(total_cap_days),     # ✅ still days
+        total_sp=total_sp_pi,             # ✅ PI commitment in SP (e.g., 150)
+        sp_per_sprint=sp_per_sprint,      # ✅ optional display (e.g., 25)
         status=status,
         score=score
     )
@@ -205,7 +235,7 @@ def pi_planning():
     df = df.sort_values(by="WSJF", ascending=False)
 
     # Pass WSJF also (nothing else)
-    features = df[["Feature Name", "WSJF"]].to_dict(orient="records")
+    features = df[["Feature Name", "WSJF","Story Points"]].to_dict(orient="records")
 
     return render_template("pi_planning.html", features=features)
 

@@ -19,9 +19,11 @@
         {{ score }}%
       </div>
 
-      <p style="color: #94a3b8; margin: 0;">
-        Total Available: <strong style="color:#cbd5f5;">{{ capacity }} fte/days</strong>
-      </p>
+     <p style="color: #94a3b8; margin: 0;">
+        Total Available:
+        <strong style="color:#cbd5f5;">{{ total_sp }} Story Points</strong>
+     </p>
+
 
       <!-- Progress bar -->
       <div style="margin-top: 18px; background: rgba(255,255,255,0.08); height: 12px; border-radius: 10px; overflow: hidden;">
@@ -45,21 +47,21 @@
         <div style="border:1px solid #1e293b; border-radius:14px; padding:14px; background:#0f172a;">
           <div style="font-size:11px; color:#94a3b8;">PI-Q1</div>
           <div style="margin-top:6px; font-size:18px; font-weight:900; color:#cbd5f5;">260</div>
-          <div style="font-size:11px; color:#94a3b8;">fte/days</div>
+          <div style="font-size:11px; color:#94a3b8;">Story Points</div>
         </div>
 
         <!-- Q2 -->
         <div style="border:1px solid #1e293b; border-radius:14px; padding:14px; background:#0f172a;">
           <div style="font-size:11px; color:#94a3b8;">PI-Q2</div>
           <div style="margin-top:6px; font-size:18px; font-weight:900; color:#cbd5f5;">275</div>
-          <div style="font-size:11px; color:#94a3b8;">fte/days</div>
+          <div style="font-size:11px; color:#94a3b8;">Story Points</div>
         </div>
 
         <!-- Q3 -->
         <div style="border:1px solid #1e293b; border-radius:14px; padding:14px; background:#0f172a;">
           <div style="font-size:11px; color:#94a3b8;">PI-Q3</div>
           <div style="margin-top:6px; font-size:18px; font-weight:900; color:#cbd5f5;">290</div>
-          <div style="font-size:11px; color:#94a3b8;">fte/days</div>
+          <div style="font-size:11px; color:#94a3b8;">Story Points</div>
         </div>
       </div>
 
@@ -77,18 +79,22 @@
 
     <table width="100%" style="border-collapse: collapse; margin-top: 20px;">
         <tr style="text-align: left; color: #94a3b8; border-bottom: 1px solid #1e293b; font-size: 12px;">
-            <th style="padding: 15px 0;">ENGINEER</th>
+            <th style="padding: 15px 0;">Name</th>
+            <th>ROLE</th>
             <th>LEAVES</th>
             <th>NET CAPACITY</th>
-            <th>SPRINT AVG</th>
+            <th>STORY POINTS PER CAPITA LAST SPRINT</th>
+            <th>STORY POINTS PER CAPITA</th>
         </tr>
 
         {% for m in members %}
         <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
             <td style="padding: 15px 0; font-weight: bold;">{{ m.name }}</td>
-            <td style="color: #ef4444;">-{{ m.leaves }}d</td>
+            <td>{{m.role}}</td>
+            <td style="color: #ef4444;">{{ m.leaves }} Days</td>
             <td>{{ m.cap }}</td>
-            <td style="color: #86BC25;">{{ m.sprint_avg }}d</td>
+            <td style="color:#38bdf8; font-weight:800;">{{ m.last_sprint_sp }}</td>
+            <td style="color: #86BC25;">{{ m.sprint_avg }}</td>
         </tr>
         {% endfor %}
     </table>
