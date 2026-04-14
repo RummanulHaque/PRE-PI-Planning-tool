@@ -1,6 +1,62 @@
 {% extends "base.html" %}
 {% block content %}
 
+<style>
+  .quality-chip-btn {
+    margin-left: 10px;
+    padding: 10px 14px;
+    border: 1px solid #3b82f6;
+    border-radius: 12px;
+    color: #dbeafe;
+    background: #0b1220;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .quality-chip-btn:hover {
+    background: #111827;
+    border-color: #60a5fa;
+  }
+  .quality-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 14px;
+  }
+  .quality-card {
+    border: 1px solid #1e293b;
+    border-radius: 14px;
+    padding: 12px;
+    background: #0b1220;
+  }
+  .quality-score-pill {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(134,188,37,0.16);
+    color: #86BC25;
+    font-weight: 900;
+    font-size: 11px;
+    border: 1px solid rgba(134,188,37,0.35);
+  }
+  .quality-section-title {
+    color: #86BC25;
+    font-weight: 800;
+    font-size: 13px;
+    margin: 16px 0 8px 0;
+  }
+  .quality-main-metric {
+    border: 1px solid #1e293b;
+    background: #0b1220;
+    border-radius: 14px;
+    padding: 14px;
+  }
+  .quality-main-score {
+    font-size: 30px;
+    font-weight: 900;
+    color: #86BC25;
+  }
+</style>
+
 <h2 style="color:#86BC25;margin-top:0;">WSJF Prioritization</h2>
 
 {% for f in features %}
@@ -79,8 +135,8 @@
             Indicates how urgent this feature is.
             Delays may cause missed deadlines, regulatory risk, or lost market opportunity.
           </span>
-      </span>
-    </div>
+        </span>
+      </div>
 
       <div style="font-size:20px;font-weight:700;">
         {{ f["Time Complexity"] if (f["Time Complexity"] == f["Time Complexity"] and f["Time Complexity"] != 0) else "—" }}
@@ -128,7 +184,7 @@
 
   </div>
 
-  <!-- Planning Poker CTA -->
+  <!-- CTAs -->
   <div style="margin-top:14px;">
     <a href="/start_poker/{{ f['Feature ID'] }}"
        style="display:inline-block;
@@ -139,8 +195,25 @@
               background:#86BC25;
               font-weight:700;
               text-decoration:none;">
-      🎯 Planning Poker for this Feature
+      Planning Poker for this Feature
     </a>
+
+    <button
+      type="button"
+      class="ai-btn"
+      data-feature-id="{{ f['Feature ID'] }}"
+      data-feature-name="{{ f['Feature Name'] }}"
+      style="margin-left:10px; padding:10px 14px; border:1px solid #334155; border-radius:12px; color:#cbd5f5; background:#0b1220; font-weight:700; cursor:pointer;">
+      AI: Break into User Stories
+    </button>
+
+    <button
+      type="button"
+      class="quality-chip-btn"
+      data-quality-feature-id="{{ f['Feature ID'] }}"
+      data-quality-feature-name="{{ f['Feature Name'] }}">
+      AI: Evaluate Feature Quality
+    </button>
   </div>
 
 </div>
@@ -161,5 +234,284 @@
    style="display:inline-block;margin-top:20px; padding:10px 14px; border:1px solid #1e293b; border-radius:12px; color:#cbd5f5; text-decoration:none;">
   Export WSJF Excel
 </a>
+
+
+<!-- AI BREAKDOWN MODAL -->
+<div id="aiModal" class="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:9999;">
+  <div style="max-width:980px; margin:6vh auto; background:#0f172a; border:1px solid #1e293b; border-radius:18px; padding:18px; box-shadow:0 18px 45px rgba(0,0,0,0.45);">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+      <div>
+        <div style="color:#86BC25; font-weight:800; font-size:12px;">AI User Story Breakdown</div>
+        <h3 id="aiModalTitle" style="margin:6px 0 0 0;">—</h3>
+        <div id="aiModalSub" style="color:#94a3b8; font-size:12px; margin-top:6px;">Draft stories are not saved until you accept.</div>
+      </div>
+      <button id="aiClose" type="button" style="border:1px solid #334155; background:#0b1220; color:#cbd5f5; border-radius:12px; padding:8px 12px; cursor:pointer;">✕</button>
+    </div>
+
+    <div style="display:flex; gap:12px; align-items:center; margin-top:12px; flex-wrap:wrap;">
+      <button id="aiGenerate" type="button" style="padding:10px 14px; border:1px solid #86BC25; border-radius:12px; color:#0b1220; background:#86BC25; font-weight:800; cursor:pointer;">
+        Generate
+      </button>
+
+      <button id="aiAccept" type="button" disabled
+        style="padding:10px 14px; border:1px solid #334155; border-radius:12px; color:#cbd5f5; background:#0b1220; font-weight:800; cursor:pointer; opacity:0.7;">
+        Accept & Save
+      </button>
+
+      <span id="aiStatus" style="color:#94a3b8; font-size:12px;"></span>
+    </div>
+
+    <div id="aiResults" style="margin-top:14px; max-height:55vh; overflow:auto; border:1px solid #1e293b; border-radius:14px; padding:12px; background:#0b1220;"></div>
+  </div>
+</div>
+
+<!-- FEATURE QUALITY MODAL -->
+<div id="qualityModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:10000;">
+  <div style="max-width:1100px; margin:5vh auto; background:#0f172a; border:1px solid #1e293b; border-radius:18px; padding:18px; box-shadow:0 18px 45px rgba(0,0,0,0.45);">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+      <div>
+        <div style="color:#86BC25; font-weight:800; font-size:12px;">AI Feature Quality Assessment</div>
+        <h3 id="qualityModalTitle" style="margin:6px 0 0 0;">—</h3>
+        <div id="qualityModalSub" style="color:#94a3b8; font-size:12px; margin-top:6px;">Evaluate whether this feature is strong enough for PI commitment.</div>
+      </div>
+      <button id="qualityClose" type="button" style="border:1px solid #334155; background:#0b1220; color:#cbd5f5; border-radius:12px; padding:8px 12px; cursor:pointer;">✕</button>
+    </div>
+
+    <div style="display:flex; gap:12px; align-items:center; margin-top:12px; flex-wrap:wrap;">
+      <button id="qualityGenerate" type="button" style="padding:10px 14px; border:1px solid #86BC25; border-radius:12px; color:#0b1220; background:#86BC25; font-weight:800; cursor:pointer;">
+        Evaluate
+      </button>
+      <span id="qualityStatus" style="color:#94a3b8; font-size:12px;"></span>
+    </div>
+
+    <div id="qualityResults" style="margin-top:14px; max-height:60vh; overflow:auto; border:1px solid #1e293b; border-radius:14px; padding:12px; background:#0b1220;"></div>
+  </div>
+</div>
+
+
+<script>
+  const modal = document.getElementById('aiModal');
+  const closeBtn = document.getElementById('aiClose');
+  const genBtn = document.getElementById('aiGenerate');
+  const acceptBtn = document.getElementById('aiAccept');
+  const statusEl = document.getElementById('aiStatus');
+  const resultsEl = document.getElementById('aiResults');
+  const titleEl = document.getElementById('aiModalTitle');
+
+  let currentFeatureId = null;
+  let currentFeatureName = null;
+  let lastDraft = null;
+
+  function openModal(fid, fname){
+    currentFeatureId = fid;
+    currentFeatureName = fname;
+    lastDraft = null;
+    titleEl.textContent = `${fid} — ${fname}`;
+    statusEl.textContent = '';
+    resultsEl.innerHTML = '<div style="color:#94a3b8;">Click <b>Generate</b> to create a draft breakdown.</div>';
+    acceptBtn.disabled = true;
+    acceptBtn.style.opacity = 0.7;
+    modal.style.display = 'block';
+  }
+
+  function closeModal(){
+    modal.style.display = 'none';
+  }
+
+  closeBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal(); });
+
+  document.querySelectorAll('.ai-btn').forEach(btn => {
+    btn.addEventListener('click', ()=>{
+      openModal(btn.dataset.featureId, btn.dataset.featureName);
+    });
+  });
+
+  function escapeHtml(str){
+    return (str || '').replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+  }
+
+  function renderDraft(draft){
+    const stories = draft.stories || [];
+    const parts = [];
+    parts.push(`<div style="color:#94a3b8; font-size:12px; margin-bottom:10px;">Generated ${stories.length} stories. Review and accept to save.</div>`);
+    stories.forEach((s, idx) => {
+      const ac = (s.acceptance_criteria || []).map(x => `<li>${escapeHtml(x)}</li>`).join('');
+      const deps = (s.dependencies || []).map(x => `<span style="border:1px solid #334155; padding:2px 8px; border-radius:999px; margin-right:6px; font-size:11px; color:#cbd5f5;">${escapeHtml(x)}</span>`).join('');
+      parts.push(`
+        <div style="border:1px solid #1e293b; border-radius:14px; padding:12px; background:#0f172a; margin-bottom:10px;">
+          <div style="color:#86BC25; font-weight:800; font-size:12px;">${escapeHtml(s.story_id || ('USR-' + String(idx+1).padStart(3,'0')))} • ${escapeHtml((s.type || 'story').toUpperCase())}</div>
+          <div style="font-weight:800; margin-top:4px;">${escapeHtml(s.title || '')}</div>
+          <div style="color:#cbd5f5; margin-top:6px;">${escapeHtml(s.user_story || '')}</div>
+
+          <div style="margin-top:10px; color:#94a3b8; font-size:12px;">Acceptance Criteria</div>
+          <ul style="margin:6px 0 0 18px; color:#cbd5f5;">${ac}</ul>
+
+          ${deps ? `<div style="margin-top:10px; color:#94a3b8; font-size:12px;">Dependencies</div><div style="margin-top:6px;">${deps}</div>` : ''}
+        </div>
+      `);
+    });
+    resultsEl.innerHTML = parts.join('');
+  }
+
+  genBtn.addEventListener('click', async ()=>{
+    if(!currentFeatureId) return;
+    statusEl.textContent = 'Generating…';
+    acceptBtn.disabled = true;
+    acceptBtn.style.opacity = 0.7;
+    resultsEl.innerHTML = '<div style="color:#94a3b8;">Working…</div>';
+
+    try{
+      const res = await fetch('/api/ai/breakdown_feature', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ feature_id: currentFeatureId })
+      });
+      const data = await res.json();
+      if(!res.ok){
+        throw new Error(data.error || 'AI request failed');
+      }
+      lastDraft = data;
+      renderDraft(data);
+      statusEl.textContent = 'Draft ready.';
+      acceptBtn.disabled = false;
+      acceptBtn.style.opacity = 1;
+    }catch(e){
+      statusEl.textContent = 'Error: ' + e.message;
+      resultsEl.innerHTML = `<div style="color:#fca5a5;">${escapeHtml(e.message)}</div>`;
+    }
+  });
+
+  acceptBtn.addEventListener('click', async ()=>{
+    if(!lastDraft || !currentFeatureId) return;
+    statusEl.textContent = 'Saving…';
+    acceptBtn.disabled = true;
+    acceptBtn.style.opacity = 0.7;
+
+    try{
+      const res = await fetch('/api/user_stories/accept', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          feature_id: lastDraft.feature_id || currentFeatureId,
+          feature_name: lastDraft.feature_name || currentFeatureName,
+          stories: lastDraft.stories || []
+        })
+      });
+      const data = await res.json();
+      if(!res.ok) throw new Error(data.error || 'Save failed');
+      statusEl.textContent = `Saved ${data.stories} stories. You can now use them in PI Planning.`;
+    }catch(e){
+      statusEl.textContent = 'Error: ' + e.message;
+      acceptBtn.disabled = false;
+      acceptBtn.style.opacity = 1;
+    }
+  });
+
+  // =========================
+  // FEATURE QUALITY MODAL
+  // =========================
+  const qualityModal = document.getElementById('qualityModal');
+  const qualityClose = document.getElementById('qualityClose');
+  const qualityGenerate = document.getElementById('qualityGenerate');
+  const qualityStatus = document.getElementById('qualityStatus');
+  const qualityResults = document.getElementById('qualityResults');
+  const qualityModalTitle = document.getElementById('qualityModalTitle');
+
+  let currentQualityFeatureId = null;
+  let currentQualityFeatureName = null;
+
+  function openQualityModal(fid, fname){
+    currentQualityFeatureId = fid;
+    currentQualityFeatureName = fname;
+    qualityModalTitle.textContent = `${fid} — ${fname}`;
+    qualityStatus.textContent = '';
+    qualityResults.innerHTML = '<div style="color:#94a3b8;">Click <b>Evaluate</b> to assess this feature.</div>';
+    qualityModal.style.display = 'block';
+  }
+
+  function closeQualityModal(){
+    qualityModal.style.display = 'none';
+  }
+
+  qualityClose.addEventListener('click', closeQualityModal);
+  qualityModal.addEventListener('click', (e)=>{ if(e.target === qualityModal) closeQualityModal(); });
+
+  document.querySelectorAll('[data-quality-feature-id]').forEach(btn => {
+    btn.addEventListener('click', ()=>{
+      openQualityModal(btn.dataset.qualityFeatureId, btn.dataset.qualityFeatureName);
+    });
+  });
+
+  function renderQualityAssessment(data){
+    const assessment = data.assessment || {};
+    const dimensions = Array.isArray(assessment.dimension_scores) ? assessment.dimension_scores : [];
+    const improvements = Array.isArray(assessment.top_3_improvements) ? assessment.top_3_improvements : [];
+
+    const dimHtml = dimensions.map(item => `
+      <div class="quality-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:8px;">
+          <div style="font-weight:800; color:#e2e8f0;">${escapeHtml(item.dimension || 'Dimension')}</div>
+          <span class="quality-score-pill">${escapeHtml(String(item.score || 0))}/5</span>
+        </div>
+        <div style="color:#cbd5f5; font-size:13px; line-height:1.55;">${escapeHtml(item.reason || '')}</div>
+        <div style="margin-top:8px; color:#94a3b8; font-size:12px;"><b style="color:#86BC25;">Improve:</b> ${escapeHtml(item.improvement || '')}</div>
+      </div>
+    `).join('');
+
+    const impHtml = improvements.length
+      ? improvements.map(x => `<li>${escapeHtml(x)}</li>`).join('')
+      : '<li>No specific improvements returned.</li>';
+
+    qualityResults.innerHTML = `
+      <div style="display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px;">
+        <div class="quality-main-metric">
+          <div style="font-size:11px; color:#94a3b8;">Overall Quality Score</div>
+          <div class="quality-main-score">${escapeHtml(String(assessment.overall_score ?? '—'))}/5</div>
+        </div>
+        <div class="quality-main-metric">
+          <div style="font-size:11px; color:#94a3b8;">Maturity Level</div>
+          <div style="font-size:22px; font-weight:900; color:#e2e8f0; margin-top:8px;">${escapeHtml(assessment.maturity_level || '—')}</div>
+        </div>
+        <div class="quality-main-metric">
+          <div style="font-size:11px; color:#94a3b8;">Response</div>
+          <div style="font-size:22px; font-weight:900; color:#e2e8f0; margin-top:8px;">${data.cached ? 'Cached' : 'Fresh'}</div>
+        </div>
+      </div>
+
+      <div class="quality-section-title">Dimension-wise Assessment</div>
+      <div class="quality-grid">
+        ${dimHtml || '<div style="color:#94a3b8;">No dimension-level output returned.</div>'}
+      </div>
+
+      <div class="quality-section-title">Top 3 Improvements Before PI Commitment</div>
+      <ul style="color:#cbd5f5; line-height:1.6; margin:0 0 0 18px;">${impHtml}</ul>
+
+      <div class="quality-section-title">Improved Feature Version</div>
+      <div class="quality-card" style="white-space:pre-wrap; color:#cbd5f5;">${escapeHtml(assessment.improved_feature_version || 'No rewritten feature returned.')}</div>
+    `;
+  }
+
+  qualityGenerate.addEventListener('click', async ()=>{
+    if(!currentQualityFeatureId) return;
+    qualityStatus.textContent = 'Evaluating…';
+    qualityResults.innerHTML = '<div style="color:#94a3b8;">Working…</div>';
+
+    try{
+      const res = await fetch(`/api/feature_quality/${currentQualityFeatureId}`, {
+        method: 'POST'
+      });
+      const data = await res.json();
+      if(!res.ok){
+        throw new Error(data.error || 'Feature quality request failed');
+      }
+      renderQualityAssessment(data);
+      qualityStatus.textContent = 'Assessment ready.';
+    }catch(e){
+      qualityStatus.textContent = 'Error: ' + e.message;
+      qualityResults.innerHTML = `<div style="color:#fca5a5;">${escapeHtml(e.message)}</div>`;
+    }
+  });
+</script>
 
 {% endblock %}

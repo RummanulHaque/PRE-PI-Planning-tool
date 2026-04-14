@@ -2,108 +2,529 @@
 {% block content %}
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
+<style>
+  /* ===== Segmented (pill) radio control ===== */
+  .segmented {
+    display: inline-flex;
+    background: #0b1220;
+    border: 1px solid #334155;
+    border-radius: 999px;
+    padding: 4px;
+    gap: 4px;
+  }
+  .segmented input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .segmented label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 800;
+    color: #cbd5f5;
+    user-select: none;
+    transition: background 160ms ease, color 160ms ease, transform 120ms ease;
+    border: 1px solid transparent;
+    min-width: 96px;
+    text-align: center;
+  }
+  .segmented label:hover {
+    background: rgba(255,255,255,0.04);
+  }
+  .segmented input[type="radio"]:checked + label {
+    background: #86BC25;
+    color: #0b1220;
+    border-color: #86BC25;
+    box-shadow: 0 10px 22px rgba(134,188,37,0.18);
+  }
+  .segmented input[type="radio"]:focus + label {
+    outline: 2px solid rgba(134,188,37,0.35);
+    outline-offset: 2px;
+  }
+
+  /* ===== Bank styling ===== */
+  .bank-section {
+    border: 1px solid #334155;
+    background: #0f172a;
+    border-radius: 14px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .bank-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid #1e293b;
+  }
+  .bank-section-title {
+    font-weight: 900;
+    font-size: 12px;
+    color: #cbd5f5;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .bank-section-pill {
+    font-size: 11px;
+    font-weight: 800;
+    color: #0b1220;
+    background: #86BC25;
+    padding: 2px 10px;
+    border-radius: 999px;
+  }
+  .bank-section-body {
+    padding: 10px;
+  }
+
+  /* draggable cards */
+  .draggable-card {
+    padding: 10px;
+    margin-bottom: 10px;
+    cursor: grab;
+    font-size: 12px;
+    border: 1px solid #334155;
+    background: #0b1220;
+    border-radius: 12px;
+    transition: transform 120ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  }
+  .draggable-card:active {
+    cursor: grabbing;
+    transform: scale(0.99);
+  }
+  .draggable-card:hover {
+    border-color: rgba(134,188,37,0.45);
+    box-shadow: 0 14px 28px rgba(0,0,0,0.25);
+  }
+  .card-title {
+    font-weight: 800;
+    color: #cbd5f5;
+  }
+  .card-meta {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 4px;
+  }
+  .meta-green {
+    color: #86BC25;
+    font-weight: 900;
+  }
+
+  /* drop zones */
+  .drop-zone {
+    border: 1px solid #334155;
+    height: 420px;
+    background: rgba(255,255,255,0.01);
+    vertical-align: top;
+    padding: 8px;
+  }
+
+  .quality-mini-btn {
+    margin-top: 8px;
+    padding: 8px 10px;
+    border: 1px solid #3b82f6;
+    border-radius: 10px;
+    color: #dbeafe;
+    background: #0b1220;
+    font-weight: 800;
+    font-size: 11px;
+    cursor: pointer;
+    width: 100%;
+  }
+  .quality-mini-btn:hover {
+    background: #111827;
+    border-color: #60a5fa;
+  }
+  .quality-modal-card {
+    border: 1px solid #1e293b;
+    border-radius: 14px;
+    padding: 12px;
+    background: #0b1220;
+  }
+  .quality-pill {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(134,188,37,0.16);
+    color: #86BC25;
+    font-weight: 900;
+    font-size: 11px;
+    border: 1px solid rgba(134,188,37,0.35);
+  }
+</style>
+
 <div style="display: flex; gap: 20px;">
-    <div id="bank" style="width: 280px; background: #161c2d; padding: 20px; border-radius: 12px; height: 80vh; overflow-y: auto;">
-        <h3 style="color: #86BC25; margin-top: 0;">Feature Bank</h3>
-
-        {% for f in features %}
-        <div class="card feature-item"
-            data-name="{{ f['Feature Name'] }}"
-            data-sp="{{ f['Story Points'] if f['Story Points'] == f['Story Points'] and f['Story Points'] != 0 else 0 }}"
-            style="padding: 10px;
-            margin-bottom: 10px;
-            cursor: grab;
-            font-size: 12px;
-            border: 1px solid #334155;
-            background: #0f172a;">
-
-            <div style="font-weight:700;">
-                {{ f['Feature Name'] }}
-            </div>
-
-            <div style="font-size:11px; color:#86BC25; margin-top:4px;">
-                WSJF: {{ f['WSJF'] if f['WSJF'] == f['WSJF'] and f['WSJF'] != 0 else "—" }}
-            </div>
-
-            <div style="font-size:11px; color:#94a3b8; margin-top:4px;">
-                Story Points: {{ f['Story Points'] if f['Story Points'] == f['Story Points'] and f['Story Points'] != 0 else "—" }}
-            </div>
-
-        </div>
-        {% endfor %}
+  <!-- LEFT BANK -->
+  <div id="bank" style="width: 320px; background: #161c2d; padding: 18px; border-radius: 14px; height: 80vh; overflow-y: auto; border:1px solid #334155;">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+      <div>
+        <h3 id="bankTitle" style="color:#86BC25; margin-top:0; margin-bottom:6px;">Feature Bank</h3>
+        <div style="color:#94a3b8; font-size:12px;">Drag items into sprints</div>
+      </div>
     </div>
 
-    <div style="flex-grow: 1;">
-        <h2 style="color: #86BC25; margin-top: 0;">PI Planning Board</h2>
+    <div style="margin-top:12px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+      <div class="segmented" role="tablist" aria-label="Planning mode">
+        <input id="modeFeatures" type="radio" name="planMode" value="features" checked>
+        <label for="modeFeatures">Features</label>
 
-        <table width="100%" style="border-collapse: collapse; color: white;">
-            <thead>
-                <tr style="background: #000;">
-                    {% for i in range(1, 7) %}
-                      <th id="sprint-header-{{ i }}" style="border: 1px solid #334155; padding: 10px;">
-                        Sprint {{ i }}
-                        <span id="sprint-sp-{{ i }}" style="margin-left:8px; color:#86BC25; font-weight:800; font-size:12px;">
-                          (SP: 0)
-                        </span>
-                      </th>
-                    {% endfor %}
-                </tr>
-            </thead>
+        <input id="modeStories" type="radio" name="planMode" value="stories">
+        <label for="modeStories">User Stories</label>
+      </div>
 
-            <tbody>
-                <tr>
-                    {% for i in range(1, 7) %}
-                      <td class="drop-zone"
-                          data-sprint="{{ i }}"
-                          style="border: 1px solid #334155; height: 420px; background: rgba(255,255,255,0.01); vertical-align: top;">
-                      </td>
-                    {% endfor %}
-                </tr>
-            </tbody>
-        </table>
+      <span id="modeHint" style="color:#94a3b8; font-size:12px;"></span>
     </div>
+
+    <div id="bankItems" style="margin-top:12px;"></div>
+  </div>
+
+  <!-- RIGHT BOARD -->
+  <div style="flex-grow: 1;">
+    <h2 style="color: #86BC25; margin-top: 0;">PI Planning Board</h2>
+
+    <table width="100%" style="border-collapse: collapse; color: white;">
+      <thead>
+        <tr style="background: #000;">
+          {% for i in range(1, 7) %}
+            <th id="sprint-header-{{ i }}" style="border: 1px solid #334155; padding: 10px;">
+              Sprint {{ i }}
+              <span id="sprint-sp-{{ i }}" style="margin-left:8px; color:#86BC25; font-weight:900; font-size:12px;">
+                (SP: 0)
+              </span>
+            </th>
+          {% endfor %}
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          {% for i in range(1, 7) %}
+            <td class="drop-zone" data-sprint="{{ i }}"></td>
+          {% endfor %}
+        </tr>
+      </tbody>
+    </table>
+
+    <div id="storyTotalsNote" style="display:none; color:#94a3b8; font-size:12px; margin-top:10px;">
+      Note: In this simplified flow, user stories don’t have story points yet — sprint SP totals will remain 0 for stories.
+    </div>
+  </div>
+</div>
+
+<!-- FEATURE QUALITY MODAL -->
+<div id="piQualityModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:10000;">
+  <div style="max-width:1100px; margin:5vh auto; background:#0f172a; border:1px solid #1e293b; border-radius:18px; padding:18px; box-shadow:0 18px 45px rgba(0,0,0,0.45);">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+      <div>
+        <div style="color:#86BC25; font-weight:800; font-size:12px;">AI Feature Quality Assessment</div>
+        <h3 id="piQualityTitle" style="margin:6px 0 0 0;">—</h3>
+        <div style="color:#94a3b8; font-size:12px; margin-top:6px;">Evaluate readiness before placing the feature into a sprint.</div>
+      </div>
+      <button id="piQualityClose" type="button" style="border:1px solid #334155; background:#0b1220; color:#cbd5f5; border-radius:12px; padding:8px 12px; cursor:pointer;">✕</button>
+    </div>
+
+    <div style="display:flex; gap:12px; align-items:center; margin-top:12px; flex-wrap:wrap;">
+      <button id="piQualityGenerate" type="button" style="padding:10px 14px; border:1px solid #86BC25; border-radius:12px; color:#0b1220; background:#86BC25; font-weight:800; cursor:pointer;">
+        Evaluate
+      </button>
+      <span id="piQualityStatus" style="color:#94a3b8; font-size:12px;"></span>
+    </div>
+
+    <div id="piQualityResults" style="margin-top:14px; max-height:60vh; overflow:auto; border:1px solid #1e293b; border-radius:14px; padding:12px; background:#0b1220;"></div>
+  </div>
 </div>
 
 <script>
-    function getStoryPointsFromItem(el){
-        const sp = parseFloat(el.dataset.sp || "0");
-        return isNaN(sp) ? 0 : sp;
-    }
+  const bankItems = document.getElementById('bankItems');
+  const bankTitle = document.getElementById('bankTitle');
+  const modeHint = document.getElementById('modeHint');
+  const storyTotalsNote = document.getElementById('storyTotalsNote');
+  const sprintZones = [...document.querySelectorAll('.drop-zone')];
 
-    function updateSprintTotals(){
-        document.querySelectorAll(".drop-zone").forEach(zone => {
-            const sprint = zone.dataset.sprint;
-            let total = 0;
+  let sortableInstances = [];
 
-            zone.querySelectorAll(".feature-item").forEach(item => {
-                total += getStoryPointsFromItem(item);
-            });
+  function getStoryPointsFromItem(el){
+    const sp = parseFloat(el.dataset.sp || "0");
+    return isNaN(sp) ? 0 : sp;
+  }
 
-            const label = document.getElementById("sprint-sp-" + sprint);
-            if(label){
-                label.textContent = `(SP: ${total})`;
-            }
-        });
-    }
+  function updateSprintTotals(){
+    document.querySelectorAll(".drop-zone").forEach(zone => {
+      const sprint = zone.dataset.sprint;
+      let total = 0;
+      zone.querySelectorAll(".pi-item").forEach(item => {
+        total += getStoryPointsFromItem(item);
+      });
+      const label = document.getElementById("sprint-sp-" + sprint);
+      if(label){
+        label.textContent = `(SP: ${total})`;
+      }
+    });
+  }
 
-    const bank = document.getElementById('bank');
-    const sprintZones = [...document.querySelectorAll('.drop-zone')];
+  function escapeHtml(str){
+    return (str || '').replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+  }
 
-    // Make all zones sortable and hook updates
-    const zones = [bank, ...sprintZones];
+  function destroySortables(){
+    sortableInstances.forEach(s => {
+      try { s.destroy(); } catch(e){}
+    });
+    sortableInstances = [];
+  }
+
+  function initSortablesForCurrentDOM(){
+    destroySortables();
+
+    const bankDropAreas = [bankItems, ...document.querySelectorAll('.story-drop')];
+    const zones = [...bankDropAreas, ...sprintZones];
 
     zones.forEach(z => {
-        new Sortable(z, {
-            group: 'pi',
-            animation: 150,
-            onAdd: updateSprintTotals,
-            onRemove: updateSprintTotals,
-            onUpdate: updateSprintTotals,
-            onEnd: updateSprintTotals
-        });
+      const s = new Sortable(z, {
+        group: 'pi',
+        animation: 150,
+        onAdd: updateSprintTotals,
+        onRemove: updateSprintTotals,
+        onUpdate: updateSprintTotals,
+        onEnd: updateSprintTotals
+      });
+      sortableInstances.push(s);
+    });
+  }
+
+  function clearSprints(){
+    sprintZones.forEach(z => z.innerHTML = '');
+    updateSprintTotals();
+  }
+
+  function renderFeaturesBank(items){
+    bankItems.innerHTML = '';
+
+    if(!items || items.length === 0){
+      bankItems.innerHTML = `<div style="color:#94a3b8; font-size:12px; border:1px dashed #334155; border-radius:12px; padding:10px;">
+        No features found.
+      </div>`;
+      return;
+    }
+
+    items.forEach(it => {
+      const card = document.createElement('div');
+      card.className = 'draggable-card pi-item';
+      card.dataset.name = it.title || '';
+      card.dataset.sp = String(it.sp ?? 0);
+      card.dataset.featureId = it.id || '';
+
+      card.innerHTML = `
+        <div class="card-title">${escapeHtml(it.title || '')}</div>
+        <div class="card-meta"><span class="meta-green">WSJF:</span> ${escapeHtml(String(it.wsjf ?? '—'))}</div>
+        <div class="card-meta">Story Points: ${escapeHtml(String(it.sp ?? '—'))}</div>
+        <button type="button" class="quality-mini-btn" onclick="openPiQualityModal('${escapeHtml(it.id || '')}', '${escapeHtml(it.title || '')}')">
+          AI: Evaluate Feature Quality
+        </button>
+      `;
+
+      bankItems.appendChild(card);
+    });
+  }
+
+  function renderStoriesBank(items){
+    bankItems.innerHTML = '';
+
+    if(!items || items.length === 0){
+      bankItems.innerHTML = `<div style="color:#94a3b8; font-size:12px; border:1px dashed #334155; border-radius:12px; padding:10px;">
+        No accepted user stories yet. Go to WSJF → “AI: Break into User Stories” and click <b>Accept & Save</b>.
+      </div>`;
+      return;
+    }
+
+    const groups = {};
+    items.forEach(st => {
+      const fid = st.feature_id || 'UNKNOWN';
+      if(!groups[fid]){
+        groups[fid] = { feature_id: fid, feature_name: st.feature_name || fid, stories: [] };
+      }
+      groups[fid].stories.push(st);
     });
 
-    // Initial calculation (in case something is preloaded later)
+    const groupList = Object.values(groups).sort((a,b) => (a.feature_name || '').localeCompare(b.feature_name || ''));
+    groupList.forEach(g => {
+      g.stories.sort((a,b) => (a.story_id || '').localeCompare(b.story_id || ''));
+    });
+
+    const frag = document.createDocumentFragment();
+
+    groupList.forEach(g => {
+      const section = document.createElement('div');
+      section.className = 'bank-section';
+
+      section.innerHTML = `
+        <div class="bank-section-header">
+          <div class="bank-section-title">
+            <span style="color:#86BC25; font-weight:900;">${escapeHtml(g.feature_id)}</span>
+            <span style="color:#cbd5f5;">${escapeHtml(g.feature_name)}</span>
+          </div>
+          <div class="bank-section-pill">${g.stories.length} stories</div>
+        </div>
+        <div class="bank-section-body story-drop"></div>
+      `;
+
+      const body = section.querySelector('.story-drop');
+
+      g.stories.forEach(st => {
+        const card = document.createElement('div');
+        card.className = 'draggable-card pi-item';
+        card.dataset.name = st.title || '';
+        card.dataset.sp = "0";
+        card.dataset.featureId = st.feature_id || '';
+        card.dataset.storyId = st.story_id || '';
+
+        card.innerHTML = `
+          <div class="card-title">${escapeHtml(st.story_id || '')} • ${escapeHtml(st.title || '')}</div>
+          <div class="card-meta">${escapeHtml(st.feature_name || '')}</div>
+        `;
+        body.appendChild(card);
+      });
+
+      frag.appendChild(section);
+    });
+
+    bankItems.appendChild(frag);
+  }
+
+  async function loadMode(mode){
+    bankTitle.textContent = mode === 'stories' ? 'User Story Bank' : 'Feature Bank';
+    modeHint.textContent = mode === 'stories' ? 'Grouped by Feature' : '';
+    storyTotalsNote.style.display = mode === 'stories' ? 'block' : 'none';
+
+    const url = mode === 'stories' ? '/api/planning/stories' : '/api/planning/features';
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if(mode === 'stories'){
+      renderStoriesBank(data.items || []);
+    } else {
+      renderFeaturesBank(data.items || []);
+    }
+
+    initSortablesForCurrentDOM();
     updateSprintTotals();
+  }
+
+  document.querySelectorAll('input[name="planMode"]').forEach(r => {
+    r.addEventListener('change', ()=>{
+      clearSprints();
+      loadMode(r.value);
+    });
+  });
+
+  // =========================
+  // FEATURE QUALITY MODAL
+  // =========================
+  const piQualityModal = document.getElementById('piQualityModal');
+  const piQualityTitle = document.getElementById('piQualityTitle');
+  const piQualityClose = document.getElementById('piQualityClose');
+  const piQualityGenerate = document.getElementById('piQualityGenerate');
+  const piQualityStatus = document.getElementById('piQualityStatus');
+  const piQualityResults = document.getElementById('piQualityResults');
+
+  let currentPiQualityFeatureId = null;
+  let currentPiQualityFeatureName = null;
+
+  function openPiQualityModal(fid, fname){
+    currentPiQualityFeatureId = fid;
+    currentPiQualityFeatureName = fname;
+    piQualityTitle.textContent = `${fid} — ${fname}`;
+    piQualityStatus.textContent = '';
+    piQualityResults.innerHTML = '<div style="color:#94a3b8;">Click <b>Evaluate</b> to assess this feature.</div>';
+    piQualityModal.style.display = 'block';
+  }
+
+  function closePiQualityModal(){
+    piQualityModal.style.display = 'none';
+  }
+
+  piQualityClose.addEventListener('click', closePiQualityModal);
+  piQualityModal.addEventListener('click', (e)=>{ if(e.target === piQualityModal) closePiQualityModal(); });
+
+  function renderPiQualityAssessment(data){
+    const assessment = data.assessment || {};
+    const dimensions = Array.isArray(assessment.dimension_scores) ? assessment.dimension_scores : [];
+    const improvements = Array.isArray(assessment.top_3_improvements) ? assessment.top_3_improvements : [];
+
+    const dimHtml = dimensions.map(item => `
+      <div class="quality-modal-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:8px;">
+          <div style="font-weight:800; color:#e2e8f0;">${escapeHtml(item.dimension || 'Dimension')}</div>
+          <span class="quality-pill">${escapeHtml(String(item.score || 0))}/5</span>
+        </div>
+        <div style="color:#cbd5f5; font-size:13px; line-height:1.55;">${escapeHtml(item.reason || '')}</div>
+        <div style="margin-top:8px; color:#94a3b8; font-size:12px;"><b style="color:#86BC25;">Improve:</b> ${escapeHtml(item.improvement || '')}</div>
+      </div>
+    `).join('');
+
+    const impHtml = improvements.length
+      ? improvements.map(x => `<li>${escapeHtml(x)}</li>`).join('')
+      : '<li>No specific improvements returned.</li>';
+
+    piQualityResults.innerHTML = `
+      <div style="display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px;">
+        <div class="quality-modal-card">
+          <div style="font-size:11px; color:#94a3b8;">Overall Quality Score</div>
+          <div style="font-size:30px; font-weight:900; color:#86BC25; margin-top:8px;">${escapeHtml(String(assessment.overall_score ?? '—'))}/5</div>
+        </div>
+        <div class="quality-modal-card">
+          <div style="font-size:11px; color:#94a3b8;">Maturity Level</div>
+          <div style="font-size:22px; font-weight:900; color:#e2e8f0; margin-top:8px;">${escapeHtml(assessment.maturity_level || '—')}</div>
+        </div>
+        <div class="quality-modal-card">
+          <div style="font-size:11px; color:#94a3b8;">Response</div>
+          <div style="font-size:22px; font-weight:900; color:#e2e8f0; margin-top:8px;">${data.cached ? 'Cached' : 'Fresh'}</div>
+        </div>
+      </div>
+
+      <div style="color:#86BC25; font-weight:800; font-size:13px; margin:16px 0 8px 0;">Dimension-wise Assessment</div>
+      <div style="display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px;">
+        ${dimHtml || '<div style="color:#94a3b8;">No dimension-level output returned.</div>'}
+      </div>
+
+      <div style="color:#86BC25; font-weight:800; font-size:13px; margin:16px 0 8px 0;">Top 3 Improvements Before PI Commitment</div>
+      <ul style="color:#cbd5f5; line-height:1.6; margin:0 0 0 18px;">${impHtml}</ul>
+
+      <div style="color:#86BC25; font-weight:800; font-size:13px; margin:16px 0 8px 0;">Improved Feature Version</div>
+      <div class="quality-modal-card" style="white-space:pre-wrap; color:#cbd5f5;">${escapeHtml(assessment.improved_feature_version || 'No rewritten feature returned.')}</div>
+    `;
+  }
+
+  piQualityGenerate.addEventListener('click', async ()=>{
+    if(!currentPiQualityFeatureId) return;
+    piQualityStatus.textContent = 'Evaluating…';
+    piQualityResults.innerHTML = '<div style="color:#94a3b8;">Working…</div>';
+
+    try{
+      const res = await fetch(`/api/feature_quality/${currentPiQualityFeatureId}`, {
+        method: 'POST'
+      });
+      const data = await res.json();
+      if(!res.ok){
+        throw new Error(data.error || 'Feature quality request failed');
+      }
+      renderPiQualityAssessment(data);
+      piQualityStatus.textContent = 'Assessment ready.';
+    }catch(e){
+      piQualityStatus.textContent = 'Error: ' + e.message;
+      piQualityResults.innerHTML = `<div style="color:#fca5a5;">${escapeHtml(e.message)}</div>`;
+    }
+  });
+
+  // init
+  loadMode('features');
 </script>
+
 {% endblock %}
